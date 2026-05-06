@@ -44,8 +44,9 @@ def load_path_words(path_file: str) -> list:
 def random_explore(env: KnotEnv, graph: StateGraph, num_steps: int, seed: int = 42):
     """Run random exploration to populate the graph."""
     np.random.seed(seed)
-    env.reset(DIAGRAMS['Goeritz'].copy())
-    graph.add_state(env.state)
+    initial_word = DIAGRAMS['Goeritz'].copy()
+    env.reset(initial_word)
+    prev_id = graph.add_state(env.state)
 
     for step in range(num_steps):
         actions = env.valid_actions()
@@ -53,13 +54,12 @@ def random_explore(env: KnotEnv, graph: StateGraph, num_steps: int, seed: int = 
             break
         idx = np.random.randint(len(actions))
         obs, _, done, info = env.step(idx)
-        graph.add_state(env.state)
+        curr_id = graph.add_state(env.state)
 
-        # Add edge from previous state
-        prev_canon = canonical(obs['state'])
-        curr_canon = canonical(env.state)
-        if prev_canon in graph._node_index and curr_canon in graph._node_index:
-            graph.add_edge(graph._node_index[prev_canon], graph._node_index[curr_canon])
+        # Add edge between consecutive states
+        if prev_id != curr_id:
+            graph.add_edge(prev_id, curr_id)
+        prev_id = curr_id
 
         if done:
             break
