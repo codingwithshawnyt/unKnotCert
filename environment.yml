@@ -1,0 +1,14 @@
+name: unknotcert
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - numpy
+  - matplotlib
+  - pip
+  - pip:
+    - gudhi  # For persistent homology (optional, will fallback to ripser)
+    - ripser  # Alternative persistence computation
+    - networkx  # For graph operations (optional)
+    - argparse  # Standard library, but listing for clarity

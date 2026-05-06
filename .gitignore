@@ -1,0 +1,13 @@
+outputs/
+*.pyc
+__pycache__/
+*.pkl
+*.pyo
+.env
+.venv
+env/
+venv/
+*.egg-info/
+dist/
+build/
+.DS_Store
