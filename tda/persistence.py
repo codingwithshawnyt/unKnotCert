@@ -2,6 +2,7 @@
 Persistence computation and visualization for state graphs.
 """
 
+import json
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import List, Tuple, Dict, Optional
@@ -139,19 +140,33 @@ def _compute_persistence_fallback(node_ids, edge_list, filtration_values):
 def plot_diagram(diagram: List[Tuple[float, float]],
                  output_path: str,
                  title: str = "Persistence Diagram"):
-    """Generate publication-quality persistence diagram plot."""
+    """Generate publication-quality persistence diagram plot and JSON data dump."""
     if not diagram:
         return
 
     births = [d[0] for d in diagram]
     deaths = [d[1] for d in diagram]
 
-    plt.figure(figsize=(6, 6))
-    plt.scatter(births, deaths, alpha=0.7, s=50, edgecolors='k', linewidth=0.5)
-
-    # Diagonal line
     all_vals = births + deaths
     min_val, max_val = min(all_vals), max(all_vals)
+
+    # --- Save JSON text-dump (source of truth) ---
+    base = os.path.splitext(output_path)[0]
+    json_path = base + '_diagram.json'
+    json_data = {
+        "title": title,
+        "x_label": "Birth (crossing number)",
+        "y_label": "Death (crossing number)",
+        "points": [[b, d] for b, d in diagram],
+        "diagonal": True,
+        "axis_range": [min_val, max_val]
+    }
+    with open(json_path, 'w') as f:
+        json.dump(json_data, f, indent=2)
+
+    # --- Render image from the data ---
+    plt.figure(figsize=(6, 6))
+    plt.scatter(births, deaths, alpha=0.7, s=50, edgecolors='k', linewidth=0.5)
     plt.plot([min_val, max_val], [min_val, max_val], 'r--', alpha=0.5, label='diagonal')
 
     plt.xlabel('Birth (crossing number)', fontsize=12)
@@ -160,12 +175,9 @@ def plot_diagram(diagram: List[Tuple[float, float]],
     plt.legend()
     plt.grid(True, alpha=0.3)
 
-    # Ensure equal aspect
     plt.axis('equal')
     plt.tight_layout()
 
-    # Save in both formats
-    base = os.path.splitext(output_path)[0]
     plt.savefig(base + '.png', dpi=300, bbox_inches='tight')
     plt.savefig(base + '.pdf', bbox_inches='tight')
     plt.close()

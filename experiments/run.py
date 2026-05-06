@@ -134,8 +134,30 @@ def main():
         if diagram:
             max_death = max(d for _, d in diagram)
             print(f"\nSqueeze Lemma: Upper bound on minimax barrier = {max_death}")
-    else:
-        print("No nodes in graph - nothing to compute")
+        else:
+            print("No nodes in graph - nothing to compute")
+            return
+
+        # --- Save experiment JSON text-dump ---
+        experiment_json_path = output_dir / f"{args.diagram}_{args.seed}_bridge.json"
+        experiment_data = {
+            "diagram": args.diagram,
+            "seed": args.seed,
+            "inject_bridge": args.inject_bridge,
+            "explore_steps": args.explore_steps,
+            "initial_crossing_number": crossing_number(initial_word),
+            "graph": {
+                "num_nodes": graph.num_nodes(),
+                "num_edges": graph.num_edges()
+            },
+            "persistence_summary": {k: (v if not isinstance(v, np.floating) else float(v))
+                                     for k, v in summ.items()},
+            "squeeze_lemma_bound": float(max_death),
+            "persistence_pairs": [[float(b), float(d)] for b, d in diagram]
+        }
+        with open(experiment_json_path, 'w') as f:
+            json.dump(experiment_data, f, indent=2)
+        print(f"Saved experiment data to {experiment_json_path}")
 
 
 if __name__ == '__main__':
