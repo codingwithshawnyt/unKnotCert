@@ -1,12 +1,12 @@
 {
-  "diagram": "D28",
+  "diagram": "OchiaiII",
   "source": "CN-priority down_only BFS",
-  "initial_crossing_number": 28,
+  "initial_crossing_number": 45,
   "move_set": "down_only (R1_down + R2_down)",
   "paths": {
     "monotone_down": {
-      "barrier": 28,
-      "num_steps": 16,
+      "barrier": 45,
+      "num_steps": 24,
       "moves": [
         [
           "R2_down",
@@ -15,18 +15,23 @@
         ],
         [
           "R2_down",
-          6,
-          5
-        ],
-        [
-          "R2_down",
           3,
-          7
+          4
         ],
         [
           "R2_down",
-          8,
-          9
+          5,
+          6
+        ],
+        [
+          "R2_down",
+          7,
+          8
+        ],
+        [
+          "R2_down",
+          9,
+          11
         ],
         [
           "R2_down",
@@ -35,42 +40,78 @@
         ],
         [
           "R2_down",
-          11,
-          13
+          13,
+          14
         ],
         [
           "R2_down",
           15,
-          17
+          16
         ],
         [
           "R2_down",
-          16,
+          17,
+          18
+        ],
+        [
+          "R2_down",
+          19,
           21
         ],
         [
           "R2_down",
-          18,
-          19
+          20,
+          22
         ],
         [
           "R2_down",
           23,
-          24
+          25
         ],
         [
           "R2_down",
-          22,
-          26
+          24,
+          29
         ],
         [
           "R2_down",
-          25,
+          26,
           27
         ],
         [
-          "R1_down",
-          0
+          "R2_down",
+          30,
+          31
+        ],
+        [
+          "R2_down",
+          32,
+          34
+        ],
+        [
+          "R2_down",
+          33,
+          35
+        ],
+        [
+          "R2_down",
+          36,
+          37
+        ],
+        [
+          "R2_down",
+          39,
+          40
+        ],
+        [
+          "R2_down",
+          41,
+          42
+        ],
+        [
+          "R2_down",
+          45,
+          43
         ],
         [
           "R1_down",

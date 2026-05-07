@@ -1,0 +1,67 @@
+{
+  "title": "Exact Minimax Barriers for Hard Unknot Diagrams",
+  "theorem": "If the unknot is not reachable in G_N(D), then M(D) >= N+1. Combined with constructive upper bounds, yields exact barriers.",
+  "move_set": "Full {R1, R2, R3} in the plane",
+  "rows": [
+    {
+      "diagram": "Goeritz",
+      "cr": 11,
+      "m_S2": 1,
+      "exploration_ub": 12,
+      "bridge_ub": 11,
+      "phase2_lb": 11,
+      "exact_M": 11,
+      "path_type": "bridge+R3",
+      "bfs_states": 568,
+      "bfs_time_s": 0.004
+    },
+    {
+      "diagram": "Culprit",
+      "cr": 10,
+      "m_S2": 1,
+      "exploration_ub": 11,
+      "bridge_ub": 10,
+      "phase2_lb": 10,
+      "exact_M": 10,
+      "path_type": "bridge+R3",
+      "bfs_states": 304,
+      "bfs_time_s": 0.002
+    },
+    {
+      "diagram": "D28",
+      "cr": 28,
+      "m_S2": 3,
+      "exploration_ub": 29,
+      "bridge_ub": 29,
+      "phase2_lb": 28,
+      "exact_M": 28,
+      "path_type": "monotone_down",
+      "bfs_states": 1466,
+      "bfs_time_s": 0.016
+    },
+    {
+      "diagram": "OchiaiII",
+      "cr": 45,
+      "m_S2": 0,
+      "exploration_ub": 46,
+      "bridge_ub": null,
+      "phase2_lb": 45,
+      "exact_M": 45,
+      "path_type": "monotone_down",
+      "bfs_states": 3952,
+      "bfs_time_s": 0.22
+    },
+    {
+      "diagram": "Unknot",
+      "cr": 0,
+      "m_S2": 0,
+      "exploration_ub": 0,
+      "bridge_ub": 0,
+      "phase2_lb": 0,
+      "exact_M": 0,
+      "path_type": "trivial",
+      "bfs_states": 1,
+      "bfs_time_s": 0.0
+    }
+  ]
+}
