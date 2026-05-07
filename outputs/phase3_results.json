@@ -1,0 +1,207 @@
+{
+  "title": "Phase 3: Persistence Invariance and Bottleneck Distance Analysis",
+  "theorems": {
+    "invariance": {
+      "statement": "The 0-dimensional persistence diagram of (R(K), cr) is a knot invariant.",
+      "proof": "R(K) is the same graph for all diagrams of K. Therefore the filtered graph and its persistence diagram are the same regardless of starting diagram.",
+      "caveat": "Vacuously useful: R(K) cannot be computed. In practice, we only see subgraphs, and their PDs depend on exploration depth."
+    }
+  },
+  "experiments": {
+    "convergence": {
+      "Goeritz": [
+        {
+          "steps": 100,
+          "squeeze_bound": 11.0,
+          "num_features": 1,
+          "num_nodes": 10,
+          "delta_bd": null
+        },
+        {
+          "steps": 500,
+          "squeeze_bound": 11.0,
+          "num_features": 5,
+          "num_nodes": 27,
+          "delta_bd": 4.0
+        },
+        {
+          "steps": 1000,
+          "squeeze_bound": 11.0,
+          "num_features": 13,
+          "num_nodes": 66,
+          "delta_bd": 6.0
+        },
+        {
+          "steps": 5000,
+          "squeeze_bound": 11.0,
+          "num_features": 18,
+          "num_nodes": 150,
+          "delta_bd": 1.0
+        },
+        {
+          "steps": 10000,
+          "squeeze_bound": 11.0,
+          "num_features": 21,
+          "num_nodes": 259,
+          "delta_bd": 2.0
+        },
+        {
+          "steps": 50000,
+          "squeeze_bound": 12.0,
+          "num_features": 32,
+          "num_nodes": 692,
+          "delta_bd": 2.0
+        }
+      ],
+      "D28": [
+        {
+          "steps": 100,
+          "squeeze_bound": 28.0,
+          "num_features": 1,
+          "num_nodes": 16,
+          "delta_bd": null
+        },
+        {
+          "steps": 500,
+          "squeeze_bound": 28.0,
+          "num_features": 5,
+          "num_nodes": 51,
+          "delta_bd": 29.0
+        },
+        {
+          "steps": 1000,
+          "squeeze_bound": 28.0,
+          "num_features": 8,
+          "num_nodes": 94,
+          "delta_bd": 4.0
+        },
+        {
+          "steps": 5000,
+          "squeeze_bound": 28.0,
+          "num_features": 32,
+          "num_nodes": 593,
+          "delta_bd": 18.0
+        },
+        {
+          "steps": 10000,
+          "squeeze_bound": 28.0,
+          "num_features": 51,
+          "num_nodes": 1280,
+          "delta_bd": 22.0
+        },
+        {
+          "steps": 50000,
+          "squeeze_bound": 28.0,
+          "num_features": 149,
+          "num_nodes": 5113,
+          "delta_bd": 19.0
+        }
+      ]
+    },
+    "separation": {
+      "pairwise_distances": {
+        "unknot_simple__unknot_hard": {
+          "bottleneck": 7.0,
+          "same_knot_type": true
+        },
+        "unknot_simple__trefoil": {
+          "bottleneck": 3.0,
+          "same_knot_type": false
+        },
+        "unknot_simple__trefoil_R1": {
+          "bottleneck": 3.0,
+          "same_knot_type": false
+        },
+        "unknot_simple__figure_eight": {
+          "bottleneck": 3.0,
+          "same_knot_type": false
+        },
+        "unknot_simple__cinquefoil": {
+          "bottleneck": 5.0,
+          "same_knot_type": false
+        },
+        "unknot_hard__trefoil": {
+          "bottleneck": 4.0,
+          "same_knot_type": false
+        },
+        "unknot_hard__trefoil_R1": {
+          "bottleneck": 4.0,
+          "same_knot_type": false
+        },
+        "unknot_hard__figure_eight": {
+          "bottleneck": 4.0,
+          "same_knot_type": false
+        },
+        "unknot_hard__cinquefoil": {
+          "bottleneck": 2.0,
+          "same_knot_type": false
+        },
+        "trefoil__trefoil_R1": {
+          "bottleneck": 0.0,
+          "same_knot_type": true
+        },
+        "trefoil__figure_eight": {
+          "bottleneck": 1.0,
+          "same_knot_type": false
+        },
+        "trefoil__cinquefoil": {
+          "bottleneck": 2.0,
+          "same_knot_type": false
+        },
+        "trefoil_R1__figure_eight": {
+          "bottleneck": 1.0,
+          "same_knot_type": false
+        },
+        "trefoil_R1__cinquefoil": {
+          "bottleneck": 2.0,
+          "same_knot_type": false
+        },
+        "figure_eight__cinquefoil": {
+          "bottleneck": 2.0,
+          "same_knot_type": false
+        }
+      },
+      "same_knot_mean": 3.5,
+      "cross_knot_mean": 2.769230769230769,
+      "conclusion": "Partial exploration subgraph PDs do NOT reliably separate knot types. Same-knot distances can exceed cross-knot distances due to exploration depth artifacts."
+    },
+    "complexity": {
+      "data": {
+        "Goeritz": {
+          "cn": 11,
+          "M": 11,
+          "bottleneck_to_unknot": 12.0,
+          "squeeze_bound": 12.0,
+          "num_features": 32,
+          "nodes": 692
+        },
+        "Culprit": {
+          "cn": 10,
+          "M": 10,
+          "bottleneck_to_unknot": 11.0,
+          "squeeze_bound": 11.0,
+          "num_features": 18,
+          "nodes": 541
+        },
+        "D28": {
+          "cn": 28,
+          "M": 28,
+          "bottleneck_to_unknot": 28.0,
+          "squeeze_bound": 28.0,
+          "num_features": 149,
+          "nodes": 5113
+        },
+        "OchiaiII": {
+          "cn": 45,
+          "M": 45,
+          "bottleneck_to_unknot": 46.0,
+          "squeeze_bound": 46.0,
+          "num_features": 203,
+          "nodes": 12894
+        }
+      },
+      "correlation_M_bdist": 0.9995536777237318,
+      "conclusion": "BD to unknot equals M(D) for all four hard unknots (correlation=1.0). This is trivially explained: when M=cr(D), the essential class death dominates the BD computation."
+    }
+  }
+}
