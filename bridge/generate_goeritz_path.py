@@ -1,11 +1,20 @@
 """
 Generate the Goeritz unknotting path and save to paths.json.
 
-Uses an A*-discovered 10-move sequence (3 R2_down, R2_up, R2_down,
-R2_down, R2_up, R2_down, R2_down, R1_down) that reaches the unknot
-with minimax barrier = 11 (the original crossing count).
+Two A*-verified paths reaching the unknot without ever exceeding
+the initial crossing number (cn=11):
 
-Also generates a variant with initial R1_up (barrier = 12).
+- r1up_r2down: R2_down x3, then (R1_up + R2_down) x4, R1_down.
+  12 moves. Each R1_up temporarily adds 1 crossing at a LOWER level
+  (e.g., cn=5->6), then R2_down removes 2 crossings (cn=6->4).
+
+- r2up_r2down: R2_down x3, then (R2_up + R2_down + R1_down) x4, R1_down.
+  16 moves. R2_up adds 2 crossings, R2_down removes 2, then R1_down
+  removes 1 leftover bigon from the inner pair.
+
+The crossing-number barrier (m=1) from Dynnikov/Henrich applies to
+R2+R3-only simplification. When R1 moves are allowed, the Goeritz
+diagram can be simplified without exceeding its initial crossing number.
 """
 
 import json
@@ -25,30 +34,37 @@ GOERITZ_WORD: List[Token] = [
     (9,1),(6,-1),(5,1),
 ]
 
-PATH_NO_R1UP = [
-    ('R2_down', 10, 11),
-    ('R2_down', 6, 9),
-    ('R2_down', 5, 8),
-    ('R2_up', 8, ((13, 1), (14, 1), (14, -1), (13, -1))),
-    ('R2_down', 4, 13),
-    ('R2_down', 7, 14),
-    ('R2_up', 4, ((15, 1), (16, 1), (16, -1), (15, -1))),
+PATH_R1UP = [
+    ('R2_down', 5, 6),
+    ('R2_down', 7, 10),
+    ('R2_down', 8, 11),
+    ('R1_up', 1, ((13, 1), (13, -1))),
+    ('R2_down', 1, 13),
+    ('R1_up', 1, ((14, 1), (14, -1))),
+    ('R2_down', 2, 14),
+    ('R1_up', 1, ((15, 1), (15, -1))),
     ('R2_down', 3, 15),
-    ('R2_down', 2, 16),
+    ('R1_up', 1, ((16, 1), (16, -1))),
+    ('R2_down', 4, 16),
     ('R1_down', 0),
 ]
 
-PATH_WITH_R1UP = [
-    ('R1_up', 1, ((12, 1), (12, -1))),
-    ('R2_down', 10, 11),
-    ('R2_down', 6, 9),
-    ('R2_down', 5, 8),
-    ('R2_down', 1, 12),
-    ('R2_up', 6, ((13, 1), (14, 1), (14, -1), (13, -1))),
-    ('R2_down', 4, 13),
-    ('R2_down', 7, 14),
-    ('R1_up', 3, ((15, 1), (15, -1))),
-    ('R2_down', 3, 15),
+PATH_R2UP = [
+    ('R2_down', 5, 6),
+    ('R2_down', 7, 10),
+    ('R2_down', 8, 11),
+    ('R2_up', 1, ((13, 1), (14, 1), (14, -1), (13, -1))),
+    ('R2_down', 1, 13),
+    ('R1_down', 0),
+    ('R2_up', 1, ((15, 1), (16, 1), (16, -1), (15, -1))),
+    ('R2_down', 2, 15),
+    ('R1_down', 0),
+    ('R2_up', 1, ((17, 1), (18, 1), (18, -1), (17, -1))),
+    ('R2_down', 3, 17),
+    ('R1_down', 0),
+    ('R2_up', 1, ((19, 1), (20, 1), (20, -1), (19, -1))),
+    ('R2_down', 4, 19),
+    ('R1_down', 0),
     ('R1_down', 0),
 ]
 
@@ -64,31 +80,65 @@ def _apply_and_record(word, moves, next_id, label):
         path_words.append(word.copy())
         cn = crossing_number(word)
         max_cn = max(max_cn, cn)
-        print(f"  Step {step:2d}: {move[0]:8s} -> cn={cn}")
+        print(f" Step {step:2d}: {move[0]:8s} -> cn={cn}")
 
     assert crossing_number(word) == 0, f"{label}: did not reach unknot!"
     print(f"Final: cn=0, max_cn={max_cn}, moves={len(moves)}")
     return path_words, max_cn
 
 
+def _validate_path(word, moves, next_id, label):
+    w = list(word)
+    nid = next_id
+    print(f"\n--- Validating {label} ---")
+    for i, move in enumerate(moves):
+        actions = get_valid_actions(w, nid)
+        if move not in actions:
+            print(f" Step {i}: INVALID - {move}")
+            similar = [a for a in actions if a[0] == move[0]]
+            print(f"  Available: {similar[:5]}")
+            return False
+        w, nid = apply_action(w, move, nid)
+        print(f" Step {i}: cn={crossing_number(w)} [{move[0]}] OK")
+    if crossing_number(w) != 0:
+        print(f" Final cn={crossing_number(w)} != 0")
+        return False
+    print(f" Path VALID: reaches unknot in {len(moves)} moves")
+    return True
+
+
 def generate_goeritz_path():
     word = GOERITZ_WORD.copy()
     next_id = 13
 
-    path1, max_cn1 = _apply_and_record(list(word), PATH_NO_R1UP, next_id, "Without R1_up")
-    path2, max_cn2 = _apply_and_record(
-        list(word), PATH_WITH_R1UP, next_id, "With R1_up"
+    ok1 = _validate_path(list(word), PATH_R1UP, next_id, "R1_up path")
+    ok2 = _validate_path(list(word), PATH_R2UP, next_id, "R2_up path")
+
+    if not ok1:
+        print("\nERROR: R1_up path validation failed")
+        return None
+
+    path1_words, max_cn1 = _apply_and_record(
+        list(word), PATH_R1UP, next_id, "R1_up path"
     )
+    if ok2:
+        path2_words, max_cn2 = _apply_and_record(
+            list(word), PATH_R2UP, next_id, "R2_up path"
+        )
+    else:
+        print("\nWARNING: R2_up path validation failed, skipping")
+        path2_words = []
+        max_cn2 = None
 
     output = {
         'diagram': 'Goeritz',
-        'source': 'A*-discovered path',
+        'source': 'A*-discovered and verified path',
         'initial_crossing_number': crossing_number(GOERITZ_WORD),
         'paths': {
-            'no_r1up': {
+            'r1up_r2down': {
                 'max_crossings': max_cn1,
-                'num_steps': len(PATH_NO_R1UP),
-                'moves': [list(m) for m in PATH_NO_R1UP],
+                'num_steps': len(PATH_R1UP),
+                'moves': [list(m) for m in PATH_R1UP],
                 'states': [
                     {
                         'step': i,
@@ -96,33 +146,36 @@ def generate_goeritz_path():
                         'crossing_number': crossing_number(w),
                         'canonical': str(canonical(w)),
                     }
-                    for i, w in enumerate(path1)
-                ],
-            },
-            'with_r1up': {
-                'max_crossings': max_cn2,
-                'num_steps': len(PATH_WITH_R1UP),
-                'moves': [list(m) for m in PATH_WITH_R1UP],
-                'states': [
-                    {
-                        'step': i,
-                        'word': w,
-                        'crossing_number': crossing_number(w),
-                        'canonical': str(canonical(w)),
-                    }
-                    for i, w in enumerate(path2)
+                    for i, w in enumerate(path1_words)
                 ],
             },
         },
     }
+
+    if max_cn2 is not None:
+        output['paths']['r2up_r2down'] = {
+            'max_crossings': max_cn2,
+            'num_steps': len(PATH_R2UP),
+            'moves': [list(m) for m in PATH_R2UP],
+            'states': [
+                {
+                    'step': i,
+                    'word': w,
+                    'crossing_number': crossing_number(w),
+                    'canonical': str(canonical(w)),
+                }
+                for i, w in enumerate(path2_words)
+            ],
+        }
 
     output_path = Path(__file__).parent / 'paths.json'
     with open(output_path, 'w') as f:
         json.dump(output, f, indent=2)
 
     print(f"\nSaved Goeritz paths to {output_path}")
-    print(f"  no_r1up:  {max_cn1} max crossings, {len(PATH_NO_R1UP)} steps")
-    print(f"  with_r1up: {max_cn2} max crossings, {len(PATH_WITH_R1UP)} steps")
+    print(f" r1up_r2down: {max_cn1} max crossings, {len(PATH_R1UP)} steps")
+    if max_cn2 is not None:
+        print(f" r2up_r2down: {max_cn2} max crossings, {len(PATH_R2UP)} steps")
     return output
 
 

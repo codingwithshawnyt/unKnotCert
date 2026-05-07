@@ -32,18 +32,17 @@ DIAGRAMS = {
 }
 
 
-def load_path_words(path_file: str, variant: str = 'no_r1up') -> list:
+def load_path_words(path_file: str, variant: str = 'r1up_r2down') -> list:
     with open(path_file) as f:
         data = json.load(f)
-    if 'paths' in data:
+    if 'paths' in data and variant in data['paths']:
         return [s['word'] for s in data['paths'][variant]['states']]
-    return [step['word'] for step in data['path']]
+    return [step['word'] for step in data.get('path', [])]
 
 
 def random_explore(env: KnotEnv, graph: StateGraph, num_steps: int,
                     initial_word: list, seed: int = 42,
                     max_crossings: int = 15):
-    """Run random exploration, preferring down-moves and capping crossings."""
     np.random.seed(seed)
     env.reset(initial_word)
     prev_id = graph.add_state(env.state)
@@ -56,7 +55,6 @@ def random_explore(env: KnotEnv, graph: StateGraph, num_steps: int,
             actions = env.valid_actions()
             if not actions:
                 break
-
         down = [a for a in actions if not a[0].endswith('_up')]
         cn = crossing_number(env.state)
 
@@ -85,6 +83,8 @@ def main():
     parser.add_argument('--diagram', type=str, default='Goeritz',
                         choices=list(DIAGRAMS.keys()))
     parser.add_argument('--inject-bridge', action='store_true')
+    parser.add_argument('--bridge-variant', type=str, default='r1up_r2down',
+                        choices=['r1up_r2down', 'r2up_r2down'])
     parser.add_argument('--explore-steps', type=int, default=5000)
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--max-crossings', type=int, default=15)
@@ -103,9 +103,11 @@ def main():
         bridge_path = Path(__file__).parent.parent / 'bridge' / 'paths.json'
         if bridge_path.exists():
             print(f"Injecting bridge from {bridge_path}")
-            path_words = load_path_words(str(bridge_path), variant='no_r1up')
+            path_words = load_path_words(str(bridge_path),
+                                         variant=args.bridge_variant)
             inject_path(graph, path_words)
-            print(f"Graph after bridge: {graph.num_nodes()} nodes, {graph.num_edges()} edges")
+            print(f"Graph after bridge: {graph.num_nodes()} nodes, "
+                  f"{graph.num_edges()} edges")
         else:
             print(f"Bridge path not found at {bridge_path}")
             print("Run: python bridge/generate_goeritz_path.py")
@@ -114,7 +116,8 @@ def main():
         print(f"Running exploration for {args.explore_steps} steps...")
         random_explore(env, graph, args.explore_steps, initial_word,
                         args.seed, args.max_crossings)
-        print(f"Graph after exploration: {graph.num_nodes()} nodes, {graph.num_edges()} edges")
+        print(f"Graph after exploration: {graph.num_nodes()} nodes, "
+              f"{graph.num_edges()} edges")
 
     nodes, edges, filtration = graph.get_graph()
     if graph.num_nodes() > 0:
@@ -124,7 +127,7 @@ def main():
 
         print("\nPersistence Summary:")
         for k, v in summ.items():
-            print(f"  {k}: {v}")
+            print(f" {k}: {v}")
 
         output_dir = Path(__file__).parent.parent / 'outputs'
         output_dir.mkdir(exist_ok=True)
@@ -135,31 +138,30 @@ def main():
 
         graph.save(str(output_dir / 'state_graph.pkl'))
 
-    if diagram:
-        bound = squeeze_bound(nodes, edges, filtration, unknot_filtration=0)
+        bound = squeeze_bound(nodes, edges, filtration,
+                              unknot_filtration=0)
         print(f"\nSqueeze Lemma: Upper bound on minimax barrier = {bound}")
-    else:
-        print("No persistence pairs")
-        return
 
-    experiment_json_path = output_dir / f"{args.diagram}_{args.seed}_bridge.json"
-    experiment_data = {
-        "diagram": args.diagram,
-        "seed": args.seed,
-        "inject_bridge": args.inject_bridge,
-        "explore_steps": args.explore_steps,
-        "initial_crossing_number": crossing_number(initial_word),
-        "graph": {
-            "num_nodes": graph.num_nodes(),
-            "num_edges": graph.num_edges()
-        },
-        "persistence_summary": {
-            k: (float(v) if hasattr(v, '__float__') else v)
-            for k, v in summ.items()
-        },
-        "squeeze_lemma_bound": float(bound),
-        "persistence_pairs": [[float(b), float(d)] for b, d in diagram]
-    }
+        experiment_json_path = output_dir / f"{args.diagram}_{args.seed}_bridge.json"
+        experiment_data = {
+            "diagram": args.diagram,
+            "seed": args.seed,
+            "inject_bridge": args.inject_bridge,
+            "bridge_variant": args.bridge_variant,
+            "explore_steps": args.explore_steps,
+            "initial_crossing_number": crossing_number(initial_word),
+            "graph": {
+                "num_nodes": graph.num_nodes(),
+                "num_edges": graph.num_edges()
+            },
+            "persistence_summary": {
+                k: (float(v) if hasattr(v, '__float__') else v)
+                for k, v in summ.items()
+            },
+            "squeeze_lemma_bound": float(bound),
+            "persistence_pairs": [[float(b), float(d)]
+                                  for b, d in diagram]
+        }
         with open(experiment_json_path, 'w') as f:
             json.dump(experiment_data, f, indent=2)
         print(f"Saved experiment data to {experiment_json_path}")
