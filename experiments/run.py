@@ -84,7 +84,7 @@ def main():
                         choices=list(DIAGRAMS.keys()))
     parser.add_argument('--inject-bridge', action='store_true')
     parser.add_argument('--bridge-variant', type=str, default='r1up_r2down',
-                        choices=['r1up_r2down', 'r2up_r2down'])
+                        choices=['r1up_r2down'])
     parser.add_argument('--explore-steps', type=int, default=5000)
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--max-crossings', type=int, default=15)
@@ -160,7 +160,11 @@ def main():
             },
             "squeeze_lemma_bound": float(bound),
             "persistence_pairs": [[float(b), float(d)]
-                                  for b, d in diagram]
+                                  for b, d in diagram],
+            "note": "When bridge path is injected, the true barrier "
+                    "under full {R1,R2,R3} moves is 11 (initial cn). "
+                    "The computed bound is from random exploration of the "
+                    "state graph; it may be looser than the injected path."
         }
         with open(experiment_json_path, 'w') as f:
             json.dump(experiment_data, f, indent=2)
