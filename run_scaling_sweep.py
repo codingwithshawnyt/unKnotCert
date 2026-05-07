@@ -68,7 +68,8 @@ for name in DIAGRAMS_TO_RUN:
             elapsed = time.time() - t0
 
             nodes, edges, filt = graph.get_graph()
-            bound = squeeze_bound(nodes, edges, filt, unknot_filtration=0)
+            bound = squeeze_bound(nodes, edges, filt, unknot_filtration=0,
+                                   initial_filtration=initial_cn)
 
             bounds.append(float(bound))
             node_counts.append(graph.num_nodes())
@@ -94,6 +95,7 @@ for name in DIAGRAMS_TO_RUN:
 print("\n=== Temperature sweep: Goeritz (50k steps) ===")
 temp_sweep = {}
 word = DIAGRAMS['Goeritz']
+goeritz_initial_cn = crossing_number(word)
 max_cn = 11 + 1 + 5
 for temp in TEMPERATURES:
     bounds = []
@@ -106,7 +108,8 @@ for temp in TEMPERATURES:
             seed=seed, max_crossings=max_cn, temperature=temp
         )
         nodes, edges, filt = graph.get_graph()
-        bound = squeeze_bound(nodes, edges, filt, unknot_filtration=0)
+        bound = squeeze_bound(nodes, edges, filt, unknot_filtration=0,
+                               initial_filtration=goeritz_initial_cn)
         bounds.append(float(bound))
     temp_sweep[str(temp)] = {
         "bounds": bounds,

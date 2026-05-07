@@ -72,7 +72,8 @@ for name, word in DIAGRAMS.items():
             pw = load_path_words(str(bridge_path_file), variant='r1up_r2down')
             inject_path(bg, pw)
             bn, be, bf = bg.get_graph()
-            bb = squeeze_bound(bn, be, bf, unknot_filtration=0)
+            bb = squeeze_bound(bn, be, bf, unknot_filtration=0,
+                            initial_filtration=initial_cn)
             bcn = compute_cn_distribution(bg)
             res['bridge_only'] = {
                 "squeeze_bound": float(bb),
@@ -111,7 +112,8 @@ for name, word in DIAGRAMS.items():
         )
 
         nodes, edges, filt = graph.get_graph()
-        bound = squeeze_bound(nodes, edges, filt, unknot_filtration=0)
+        bound = squeeze_bound(nodes, edges, filt, unknot_filtration=0,
+                               initial_filtration=initial_cn)
         diagram_pd = compute_persistence(nodes, edges, filt)
         pd_summ = summary(diagram_pd)
         cn_dist = compute_cn_distribution(graph)

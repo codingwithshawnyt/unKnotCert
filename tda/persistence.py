@@ -124,13 +124,18 @@ def _compute_persistence_unionfind(node_ids, edge_list, filtration_values):
 
 
 def squeeze_bound(node_ids, edge_list, filtration_values,
-                  unknot_filtration: int = 0) -> float:
-    """
-    Compute the Squeeze Lemma bound: the maximum crossing number
+                  unknot_filtration: int = 0,
+                  initial_filtration: Optional[int] = None) -> float:
+    """Compute the Squeeze Lemma bound: the maximum crossing number
     in the connected component containing the unknot.
 
     This is NOT derivable from the persistence diagram alone
     (the essential class has death=inf). It requires graph traversal.
+
+    If initial_filtration is given, we require the component to contain
+    at least one vertex at that filtration level (the original diagram).
+    This avoids picking an isolated cn=0 vertex that isn't connected
+    to the diagram's component.
     """
     n = len(filtration_values)
     if n == 0:
@@ -141,29 +146,44 @@ def squeeze_bound(node_ids, edge_list, filtration_values,
         adj[u].add(v)
         adj[v].add(u)
 
-    # Find a vertex at the unknot filtration level
-    start = None
-    for i, f in enumerate(filtration_values):
-        if f == unknot_filtration:
-            start = i
-            break
+    # Find all vertices at the unknot filtration level
+    unknot_vertices = [i for i, f in enumerate(filtration_values)
+                       if f == unknot_filtration]
 
-    if start is None:
-        return max(filtration_values)
+    if not unknot_vertices:
+        return float(max(filtration_values))
 
-    visited = {start}
-    q = deque([start])
-    max_f = filtration_values[start]
+    # BFS from each unknot vertex; return max filtration in the
+    # first component that also contains the initial diagram
+    best_bound = None
+    for start in unknot_vertices:
+        visited = {start}
+        q = deque([start])
+        max_f = filtration_values[start]
+        has_initial = (initial_filtration is None or
+                       filtration_values[start] == initial_filtration)
 
-    while q:
-        node = q.popleft()
-        for nb in adj[node]:
-            if nb not in visited:
-                visited.add(nb)
-                max_f = max(max_f, filtration_values[nb])
-                q.append(nb)
+        while q:
+            node = q.popleft()
+            for nb in adj[node]:
+                if nb not in visited:
+                    visited.add(nb)
+                    max_f = max(max_f, filtration_values[nb])
+                    if (initial_filtration is not None and
+                            filtration_values[nb] == initial_filtration):
+                        has_initial = True
+                    q.append(nb)
 
-    return float(max_f)
+        if has_initial:
+            if best_bound is None or max_f < best_bound:
+                best_bound = max_f
+
+    # If no component contains both unknot and initial diagram,
+    # they are disconnected: return max over all unknot components
+    if best_bound is None:
+        best_bound = max(filtration_values)
+
+    return float(best_bound)
 
 
 def plot_diagram(diagram: List[Tuple[float, float]],

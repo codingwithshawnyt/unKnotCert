@@ -93,6 +93,8 @@ def make_scaling_figure(results, output_dir):
         'OchiaiII': ('ochiai_scaling', 45),
     }
 
+    bridge_lines = {'Goeritz': 11, 'Culprit': 10, 'D28': 29}
+
     for idx, (name, (key, initial_cn)) in enumerate(plot_data.items()):
         ax = axes[idx // 2][idx % 2]
         data = results.get(key, {}).get('scaling', {})
@@ -112,8 +114,9 @@ def make_scaling_figure(results, output_dir):
                     label='Mean +/- std', color='#4472C4')
         ax.plot(steps, bests, 's--', color='#ED7D31', label='Best')
 
-        if name == 'Goeritz':
-            ax.axhline(y=11, color='green', linestyle=':', label='Bridge-only (11)')
+        if name in bridge_lines:
+            ax.axhline(y=bridge_lines[name], color='green', linestyle=':',
+                       label='Bridge-only ({})'.format(bridge_lines[name]))
 
         m_val = HARDNESS.get(name, {}).get('m', 0)
         if m_val > 0:
@@ -253,47 +256,49 @@ def make_cn_distribution_figure(results, output_dir):
 
 
 def make_bridge_comparison_figure(results, output_dir):
-    """Generate bridge vs exploration comparison for Goeritz."""
+    """Generate bridge vs exploration comparison for all bridge diagrams."""
     main = results.get('main', {})
-    goeritz = main.get('Goeritz', {})
 
-    if not goeritz:
+    bridge_diagrams = ['Goeritz', 'Culprit', 'D28']
+    bridge_bounds = {'Goeritz': 11, 'Culprit': 10, 'D28': 29}
+    has_data = [name for name in bridge_diagrams if main.get(name, {}).get('bridge_only')]
+
+    if not has_data:
         return
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+    n = len(has_data)
+    fig, axes = plt.subplots(1, n, figsize=(5 * n, 5))
+    if n == 1:
+        axes = [axes]
 
-    # Left: Bridge path cn profile
-    bridge = goeritz.get('bridge_only', {})
-    if bridge:
+    for idx, name in enumerate(has_data):
+        ax = axes[idx]
+        r = main.get(name, {})
+        bridge = r.get('bridge_only', {})
         bridge_dist = bridge.get('cn_distribution', {})
+        sd = r.get('seeds_data', [])
+
         if bridge_dist:
             cns = sorted([int(k) for k in bridge_dist.keys()])
             counts = [bridge_dist[str(cn)] for cn in cns]
-            ax1.bar(cns, counts, alpha=0.7, edgecolor='k', color='#70AD47',
-                    label='Bridge path')
-            ax1.set_xlabel('Crossing Number')
-            ax1.set_ylabel('Number of States')
-            ax1.set_title('Bridge-Only Subgraph (Goeritz)')
-            ax1.legend()
-            ax1.grid(True, alpha=0.3)
+            ax.bar(cns, counts, alpha=0.7, edgecolor='k', color='#70AD47',
+                   label='Bridge (B={})'.format(bridge_bounds.get(name, '?')))
 
-    # Right: Exploration cn profile
-    sd = goeritz.get('seeds_data', [])
-    if sd:
-        comp_dist = sd[0].get('cn_distribution_component', {})
-        if comp_dist:
-            cns = sorted([int(k) for k in comp_dist.keys()])
-            counts = [comp_dist[str(cn)] for cn in cns]
-            ax2.bar(cns, counts, alpha=0.7, edgecolor='k', color='#4472C4',
-                    label='Exploration')
-            ax2.set_xlabel('Crossing Number')
-            ax2.set_ylabel('Number of States')
-            ax2.set_title('Exploration Subgraph (Goeritz, seed=0)')
-            ax2.legend()
-            ax2.grid(True, alpha=0.3)
+        if sd:
+            comp_dist = sd[0].get('cn_distribution_component', {})
+            if comp_dist:
+                cns2 = sorted([int(k) for k in comp_dist.keys()])
+                counts2 = [comp_dist[str(cn)] for cn in cns2]
+                ax.bar(cns2, counts2, alpha=0.5, edgecolor='k', color='#4472C4',
+                       label='Exploration (B={})'.format(int(sd[0].get('squeeze_bound', 0))))
 
-    plt.suptitle('Bridge Comparator: Lower Envelope vs. Exploration\n(Goeritz: Bridge=11, Exploration=12)',
-                 fontsize=13)
+        ax.set_xlabel('Crossing Number')
+        ax.set_ylabel('Number of States')
+        ax.set_title(name)
+        ax.legend(fontsize=8)
+        ax.grid(True, alpha=0.3)
+
+    plt.suptitle('Bridge vs. Exploration: Crossing Number Distribution', fontsize=13)
     plt.tight_layout()
     fig.savefig(str(output_dir / 'bridge_comparison.png'), dpi=300, bbox_inches='tight')
     fig.savefig(str(output_dir / 'bridge_comparison.pdf'), bbox_inches='tight')

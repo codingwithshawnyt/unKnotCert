@@ -283,7 +283,8 @@ def main():
                 inject_path(bridge_graph, path_words)
                 b_nodes, b_edges, b_filt = bridge_graph.get_graph()
                 bridge_bound = squeeze_bound(b_nodes, b_edges, b_filt,
-                                             unknot_filtration=0)
+                                             unknot_filtration=0,
+                                             initial_filtration=initial_cn)
                 bridge_cn_dist = compute_cn_distribution(bridge_graph)
                 diagram_results["bridge_only"] = {
                     "squeeze_bound": float(bridge_bound),
@@ -324,7 +325,8 @@ def main():
             )
 
             nodes, edges, filtration = graph.get_graph()
-            bound = squeeze_bound(nodes, edges, filtration, unknot_filtration=0)
+            bound = squeeze_bound(nodes, edges, filtration, unknot_filtration=0,
+                               initial_filtration=initial_cn)
             diagram_pd = compute_persistence(nodes, edges, filtration)
             pd_summary = summary(diagram_pd)
             cn_dist = compute_cn_distribution(graph)
