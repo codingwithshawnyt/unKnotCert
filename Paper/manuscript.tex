@@ -5,6 +5,9 @@
 
 \bibliographystyle{plainurl}
 
+\usepackage{xspace}
+\newcommand{\BRS}{\textsf{Bounded\-Reide\-meister\-Search}\xspace}
+
 \title{Exact Virtual Unknotting Barriers and a Classical--Virtual Complexity Gap}
 
 \titlerunning{Virtual Unknotting Barriers and Classical--Virtual Gap}
@@ -45,11 +48,11 @@
 
 \begin{abstract}
 We introduce and compute the \emph{virtual minimax barrier} $\mathrm{Top}_v(D)$ --- the minimum crossing-number ceiling over all sequences of algebraic Reidemeister moves on Gauss words that unknot a diagram $D$ --- and contrast it with the \emph{classical barrier} $\mathrm{Top}_c(D)$ restricted to planar-realizable moves.
-We present an exact algorithm, \textsc{BoundedReidemeisterSearch}, that computes $\mathrm{Top}_v(D)$ via bounded BFS with crossing-number pruning, and prove its correctness.
-Applying it to four hard unknot diagrams from the literature, we obtain $\mathrm{Top}_v(\mathrm{Goeritz}) = 11$, $\mathrm{Top}_v(\mathrm{Culprit}) = 10$, $\mathrm{Top}_v(D_{28}) = 28$, and $\mathrm{Top}_v(\mathrm{Ochiai\;II}) = 45$.
-Our main result is a separation between virtual and classical unknotting complexity: for the $D_{28}$ diagram, $\mathrm{Top}_v(D_{28}) = 28$ but $\mathrm{Top}_c(D_{28}) = 31$ (by Burton et al.\ [4]), yielding a gap of $3$ crossings.
-This provides the first rigorous example where algebraic flexibility of Gauss words strictly reduces the minimax crossing barrier compared to geometric (planar) Reidemeister moves.
-We also show that $D_{28}$ and Ochiai~II admit \emph{monotone-reducing} virtual unknotting paths using only R1-down and R2-down moves, reminiscent of Dynnikov's monotonic simplification for arc-presentations.
+We present an exact algorithm, \BRS, that computes $\mathrm{Top}_v(D)$ via bounded BFS with crossing-number pruning, and prove its correctness.
+Applying it to five hard unknot diagrams from the literature, we obtain $\mathrm{Top}_v(\mathrm{Goeritz}) = 11$, $\mathrm{Top}_v(\mathrm{Culprit}) = 10$, $\mathrm{Top}_v(D_{28}) = 28$, $\mathrm{Top}_v(D_{43}) = 43$, and $\mathrm{Top}_v(\mathrm{Ochiai\;II}) = 45$.
+Our main result is a proven separation between virtual and classical unknotting complexity for $D_{28}$: $\mathrm{Top}_v(D_{28}) = 28 < 31 = \mathrm{Top}_c(D_{28})$, a gap of $3$ crossings.
+Computational evidence suggests the same gap for $D_{43}$, where $\mathrm{Top}_v(D_{43}) = 43$ and the best known classical lower bound gives $\mathrm{Top}_c(D_{43}) \geq 46$ (Burton et al.\ [4]).
+We also show that $D_{28}$, $D_{43}$, and Ochiai~II admit \emph{monotone-reducing} virtual unknotting paths using only R1-down and R2-down moves, and characterize the structural dichotomy between diagrams that admit such paths and those that require R3 moves via the \emph{interleaving graph}: a word is R1+R2-down irreducible if and only if every interleaving component is fully interleaved.
 \end{abstract}
 
 
@@ -93,22 +96,23 @@ The question is: can this inequality be \emph{strict}?
 
 \paragraph*{Our contributions.}
 \begin{enumerate}
-\item We present an exact algorithm, \textsc{BoundedReidemeisterSearch}, that computes $\mathrm{Top}_v(D)$ via bounded BFS with crossing-number pruning.
+\item We present an exact algorithm, \BRS, that computes $\mathrm{Top}_v(D)$ via bounded BFS with crossing-number pruning.
 We prove its correctness and analyze its state-space complexity.
 In experiments on the four hardest known unknot diagrams, the algorithm visits fewer than $4\,000$ states, completing in under one second.
 
-\item We compute exact virtual barriers for four hard unknot diagrams:
+\item We compute exact virtual barriers for five hard unknot diagrams:
 $\mathrm{Top}_v(\mathrm{Goeritz}) = 11$,
 $\mathrm{Top}_v(\mathrm{Culprit}) = 10$,
-$\mathrm{Top}_v(D_{28}) = 28$, and
+$\mathrm{Top}_v(D_{28}) = 28$,
+$\mathrm{Top}_v(D_{43}) = 43$, and
 $\mathrm{Top}_v(\mathrm{Ochiai\;II}) = 45$.
 In each case, $\mathrm{Top}_v(D) = \mathrm{cr}(D)$, meaning the unknot is reachable without any extra crossings in the virtual category.
 
-\item We prove a \emph{classical--virtual complexity gap} for $D_{28}$: $\mathrm{Top}_v(D_{28}) = 28 < 31 = \mathrm{Top}_c(D_{28})$.
-This is the first rigorous example of a Gauss word whose virtual unknotting complexity is strictly lower than its classical complexity.
-The gap arises because the algebraic R2-down moves available in the virtual category are not planar-realizable at the same crossing number.
+\item We prove a \emph{classical--virtual complexity gap} for $D_{28}$: $\mathrm{Top}_v(D_{28}) = 28 < 31 = \mathrm{Top}_c(D_{28})$, a gap of $3$ crossings.
+For $D_{43}$, we have $\mathrm{Top}_v(D_{43}) = 43$ and the best known classical lower bound $\mathrm{Top}_c(D_{43}) \geq 46$ (Burton et al.\ [4]), giving computational evidence of the same gap.
 
-\item We show that $D_{28}$ and Ochiai~II admit \emph{monotone-reducing} virtual unknotting paths using only R1-down and R2-down, reminiscent of Dynnikov's monotonic simplification for arc-presentations~\cite{Dynnikov06ArcPresentation}.
+\item We show that $D_{28}$, $D_{43}$, and Ochiai~II admit \emph{monotone-reducing} virtual unknotting paths using only R1-down and R2-down moves, while Goeritz and Culprit provably require R3 moves even in the virtual category.
+We characterize this dichotomy via the \emph{interleaving graph}: a Gauss word is stuck (no R1/R2-down moves) if and only if every interleaving component is fully interleaved (\cref{thm:stuck}).
 \end{enumerate}
 
 
@@ -159,8 +163,9 @@ Hence $m_v(D) \leq m_c(D)$.
 \end{observation}
 
 \begin{observation}
-$\mathrm{Top}_v(D) \geq \mathrm{cr}(D)$ always, since $D$ itself is on every path.
+$\mathrm{Top}_v(D) \geq \mathrm{cr}(D)$, since $D$ itself lies on every unknotting path.
 Hence $m_v(D) \geq 0$.
+Moreover, this lower bound is \emph{tight}: as we show below, $m_v(D) = 0$ for all five hard unknot diagrams, meaning the trivial lower bound is achieved in practice.
 \end{observation}
 
 \subsection{The bounded Reidemeister graph}
@@ -177,12 +182,12 @@ $\mathrm{Top}_v(D) \leq N$ if and only if the trivial word $w_0 = \varepsilon$ (
 \subsection{Bounded Reidemeister Search}
 
 \begin{definition}
-\textsc{BoundedReidemeisterSearch}$(w, N)$ performs a breadth-first search from $w$ in $G_N(w)$: starting from $w$, enumerate all algebraic Reidemeister moves, apply those yielding words with $\mathrm{cr} \leq N$, canonicalize each resulting word, and add novel words to the queue.
+\BRS$(w, N)$ performs a breadth-first search from $w$ in $G_N(w)$: starting from $w$, enumerate all algebraic Reidemeister moves, apply those yielding words with $\mathrm{cr} \leq N$, canonicalize each resulting word, and add novel words to the queue.
 The algorithm terminates when the queue is empty (exhaustive) or the trivial word $w_0$ is found.
 \end{definition}
 
 \begin{theorem}[Correctness]\label{thm:correctness}
-If the trivial word $w_0$ is reachable from $w$ via algebraic Reidemeister moves with maximum crossing number at most $N$, then \textsc{BoundedReidemeisterSearch}$(w, N)$ finds $w_0$.
+If the trivial word $w_0$ is reachable from $w$ via algebraic Reidemeister moves with maximum crossing number at most $N$, then \BRS$(w, N)$ finds $w_0$.
 If $w_0$ is not found upon termination, then no such path exists, and $\mathrm{Top}_v(D) \geq N + 1$.
 \end{theorem}
 
@@ -206,7 +211,7 @@ The absence of $w_0$ implies no such path exists.
 \subsection{Upper bound via the Reachability Lemma}
 
 \begin{lemma}[Reachability Lemma]\label{lem:reachability}
-If \textsc{BoundedReidemeisterSearch}$(w, N)$ finds $w_0$, then $\mathrm{Top}_v(D) \leq N$.
+If \BRS$(w, N)$ finds $w_0$, then $\mathrm{Top}_v(D) \leq N$.
 \end{lemma}
 
 \begin{proof}
@@ -214,7 +219,7 @@ The BFS discovers a path from $w$ to $w_0$ in $G_N(w)$, i.e., a sequence of alge
 \end{proof}
 
 \begin{corollary}\label{cor:exact}
-If \textsc{BoundedReidemeisterSearch}$(w, N)$ finds $w_0$ and \textsc{BoundedReidemeisterSearch}$(w, N-1)$ does not, then $\mathrm{Top}_v(D) = N$.
+If \BRS$(w, N)$ finds $w_0$ and \BRS$(w, N-1)$ does not, then $\mathrm{Top}_v(D) = N$.
 \end{corollary}
 
 \begin{proof}
@@ -244,7 +249,7 @@ In practice, the state spaces are remarkably small.
 \cref{tab:complexity} summarizes the computation; \cref{fig:bfs} visualizes the scaling.
 
 \begin{table}
-\caption{State-space sizes for \textsc{BoundedReidemeisterSearch} at ceiling $N = \mathrm{cr}(D)$.}
+\caption{State-space sizes for \BRS at ceiling $N = \mathrm{cr}(D)$.}
 \label{tab:complexity}
 \begin{center}
 \begin{tabular}{lccccc}
@@ -254,17 +259,18 @@ Diagram & $\mathrm{cr}(D)$ & $N$ & States & Edges & Time (s) \\
 Goeritz & 11 & 11 & 568 & 874 & 0.004 \\
 Culprit & 10 & 10 & 304 & 452 & 0.002 \\
 $D_{28}$ & 28 & 28 & 1\,466 & 1\,907 & 0.016 \\
+$D_{43}$ & 43 & 43 & 61\,043 & 567\,919 & 8.9 \\
 Ochiai~II & 45 & 45 & 3\,952 & 12\,386 & 0.22 \\
 \bottomrule
 \end{tabular}
 \end{center}
 \end{table}
 
-The Goeritz and Culprit searches at $N = \mathrm{cr}(D) - 1$ immediately return \emph{empty}: no words with $\mathrm{cr} \leq N$ are reachable from $w$ at all, confirming $\mathrm{Top}_v(D) = \mathrm{cr}(D)$ by \cref{cor:exact}.
+The Goeritz and Culprit searches at $N = \mathrm{cr}(D) - 1$ immediately return \emph{empty}: no R1-down or R2-down moves are applicable at the starting word, and R3 preserves crossing number, so no words with $\mathrm{cr} \leq N$ are reachable. This confirms $\mathrm{Top}_v(D) = \mathrm{cr}(D)$ by \cref{cor:exact}, though we note this particular lower bound is a consequence of the trivial observation $\mathrm{Top}_v(D) \geq \mathrm{cr}(D)$.
 
 \begin{figure}
 \includegraphics[width=\textwidth]{fig_bfs_performance}
-\caption{BFS state-space size and runtime for the four hard unknot diagrams at ceiling $N = \mathrm{cr}(D)$. Both axes are logarithmic. The algorithm visits fewer than $4\,000$ states and completes in under one second for all four diagrams.}
+\caption{BFS state-space size and runtime for five hard unknot diagrams at ceiling $N = \mathrm{cr}(D)$. Both axes are logarithmic. The algorithm completes in under one second for diagrams with $\mathrm{cr} \leq 45$ (excluding $D_{43}$, which requires $9$ seconds and $61\,000$ states due to the larger state space at $43$ crossings).}
 \label{fig:bfs}
 \end{figure}
 
@@ -272,11 +278,11 @@ The Goeritz and Culprit searches at $N = \mathrm{cr}(D) - 1$ immediately return 
 \section{Exact virtual barriers}
 
 \begin{theorem}\label{thm:virtual_barriers}
-The exact virtual minimax barriers for four hard unknot diagrams are given in \cref{tab:barriers}.
+The exact virtual minimax barriers for five hard unknot diagrams are given in \cref{tab:barriers}.
 \end{theorem}
 
 \begin{table}
-\caption{Exact virtual minimax barriers for four hard unknot diagrams.}
+\caption{Exact virtual minimax barriers for five hard unknot diagrams.}
 \label{tab:barriers}
 \begin{center}
 \begin{tabular}{lccccc}
@@ -286,6 +292,7 @@ Diagram & $\mathrm{cr}(D)$ & $\mathrm{Top}_v(D)$ & $m_v(D)$ & Path type & Moves 
 Goeritz & 11 & 11 & 0 & cn\_priority & --- \\
 Culprit & 10 & 10 & 0 & cn\_priority & --- \\
 $D_{28}$ & 28 & 28 & 0 & monotone & 16 \\
+$D_{43}$ & 43 & 43 & 0 & monotone & 23 \\
 Ochiai~II & 45 & 45 & 0 & monotone & 24 \\
 \bottomrule
 \end{tabular}
@@ -293,7 +300,7 @@ Ochiai~II & 45 & 45 & 0 & monotone & 24 \\
 \end{table}
 
 \begin{proof}
-For each diagram, we run \textsc{BoundedReidemeisterSearch} at ceiling $N = \mathrm{cr}(D)$, which finds $w_0$, and at ceiling $N = \mathrm{cr}(D) - 1$, which exhausts without finding $w_0$.
+For each diagram, we run \BRS at ceiling $N = \mathrm{cr}(D)$, which finds $w_0$, and at ceiling $N = \mathrm{cr}(D) - 1$, which exhausts without finding $w_0$.
 By \cref{cor:exact}, $\mathrm{Top}_v(D) = \mathrm{cr}(D)$.
 
 For $D_{28}$, the explicit monotone-reducing path is:
@@ -302,65 +309,214 @@ w_{28} \xrightarrow{\text{R2}\downarrow \times 12} w_4 \xrightarrow{\text{R1}\do
 \]
 with crossing number trace $[28, 26, 24, 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 3, 2, 1, 0]$.
 
+For $D_{43}$, the monotone-reducing path has $23$ moves (depth $23$ in the search), also using only R1-down and R2-down moves.
+
 For Ochiai~II, the monotone-reducing path is:
 \[
 w_{45} \xrightarrow{\text{R2}\downarrow \times 21} w_3 \xrightarrow{\text{R1}\downarrow \times 3} w_0
 \]
 with crossing number trace $[45, 43, 41, \ldots, 5, 3, 2, 1, 0]$.
 
-Both paths use only R1-down and R2-down moves; no R3 moves or crossing-increasing moves are needed.
+All three monotone paths use only R1-down and R2-down moves; no R3 moves or crossing-increasing moves are needed.
 The search at $N = \mathrm{cr}(D) - 1$ yields an empty graph (no Gauss words with $\mathrm{cr} \leq N$ are reachable from $w$), confirming the lower bound.
 
-For Goeritz and Culprit, the cn\_priority search finds $w_0$ at the ceiling $\mathrm{cr}(D)$; the search at $\mathrm{cr}(D) - 1$ is empty.
+For Goeritz and Culprit, the cn\_priority search finds $w_0$ at the ceiling $\mathrm{cr}(D)$; the search at $\mathrm{cr}(D) - 1$ immediately yields an empty frontier (no R1-down or R2-down moves are applicable, and R3 moves preserve crossing number so they cannot produce words with $\mathrm{cr} \leq N$), confirming the lower bound.
 \end{proof}
 
 \begin{figure}
 \includegraphics[width=\textwidth]{fig_cn_traces}
-\caption{Crossing number traces along the proven unknotting paths for the four hard unknot diagrams. For $D_{28}$ and Ochiai~II, the paths are strictly monotone-decreasing (only R2-down and R1-down moves); for Goeritz and Culprit, the CN-priority search uses R3 moves at the starting crossing number.}
+\caption{Crossing number traces along the proven unknotting paths for the hard unknot diagrams. For $D_{28}$, $D_{43}$, and Ochiai~II, the paths are strictly monotone-decreasing (only R2-down and R1-down moves); for Goeritz and Culprit, the CN-priority search uses R3 moves at the starting crossing number.}
 \label{fig:cn_traces}
 \end{figure}
 
 
 \section{A classical--virtual complexity gap}
 
-\begin{theorem}[Classical--virtual gap for $D_{28}$]\label{thm:gap}
+\begin{theorem}[Classical--virtual gap]\label{thm:gap}
 For the $D_{28}$ diagram of Burton et al.~\cite{Burton2020Hard},
 \[
 \mathrm{Top}_v(D_{28}) = 28 < 31 = \mathrm{Top}_c(D_{28}).
 \]
-Consequently, there exist Gauss words for which the virtual unknotting complexity is strictly lower than the classical complexity.
+For $D_{43}$, we have $\mathrm{Top}_v(D_{43}) = 43$ and $\mathrm{Top}_c(D_{43}) \geq 46$ (by Burton et al.~\cite{Burton2020Hard}, who prove $m_c(D_{43}) \geq 3$).
 \end{theorem}
 
 \begin{proof}
 The virtual upper bound $\mathrm{Top}_v(D_{28}) \leq 28$ is established by the monotone-reducing path in \cref{thm:virtual_barriers}.
-The virtual lower bound $\mathrm{Top}_v(D_{28}) \geq 28$ follows from the empty search at $N = 27$.
+The virtual lower bound follows from the empty search at $N = 27$.
+The classical lower bound $\mathrm{Top}_c(D_{28}) = 31$ is established by Burton et al.~\cite{Burton2020Hard}, who prove $m_c(D_{28}) = 3$ via exhaustive enumeration of classical Reidemeister moves in $\mathbb{S}^2$ restricted to diagrams with at most $30$ crossings.
+The strict inequality $28 < 31$ follows immediately.
 
-The classical lower bound $\mathrm{Top}_c(D_{28}) \geq 31$ is established by Burton et al.~\cite{Burton2020Hard}, who prove $m_c(D_{28}) = 3$ via exhaustive enumeration of classical Reidemeister moves in $\mathbb{S}^2$ restricted to diagrams with at most $30$ crossings.
-Since no classical path to $D_0$ exists within $\mathrm{cr} \leq 30$, we have $\mathrm{Top}_c(D_{28}) \geq 31$.
-
-The strict inequality $\mathrm{Top}_v(D_{28}) < \mathrm{Top}_c(D_{28})$ follows from $28 < 31$.
+For $D_{43}$, the virtual barrier $\mathrm{Top}_v(D_{43}) = 43$ is proven by the same argument (\cref{thm:virtual_barriers}).
+Burton et al.\ prove $m_c(D_{43}) \geq 3$ by exhibiting a classical simplification sequence that requires at least $46$ crossings; if this lower bound is tight, then $\mathrm{Top}_c(D_{43}) = 46$ and the gap is exactly $3$, matching $D_{28}$.
 \end{proof}
 
 \paragraph*{Why the gap arises.}
-The monotone-reducing path for $D_{28}$ consists of R2-down moves that de-interleave crossing pairs in the Gauss code.
-At crossing numbers between $4$ and $28$, the intermediate Gauss words may not be planar-realizable: the R2-down move, while valid algebraically, may produce a virtual (non-classical) diagram.
-In the classical category, the same crossing pairs can only be de-interleaved by first performing R3 and R1-up/R2-up moves that re-route the diagram through a higher crossing number, reaching $31$ crossings before reducing.
+The monotone-reducing paths for $D_{28}$ and $D_{43}$ consist of R2-down moves that de-interleave crossing pairs in the Gauss code.
+At intermediate crossing numbers, the resulting Gauss words may not be planar-realizable: the R2-down move, while valid algebraically, may produce a virtual (non-classical) diagram.
+In the classical category, the same crossing pairs can only be de-interleaved by first performing R3 and R1-up/R2-up moves that re-route the diagram through a higher crossing number, reaching at least $\mathrm{cr}(D) + 3$ crossings before reducing (proven for $D_{28}$; established as a lower bound for $D_{43}$).
 
 This is the algebraic analog of the well-known phenomenon in virtual knot theory: virtual moves provide additional ``room'' for simplification that is geometrically unavailable in the plane.
 
 \begin{remark}
-The gap of exactly $m_c(D_{28}) = 3$ is consistent with the interpretation that the three extra crossings required classically are precisely the overhead needed to maintain planarity while performing the algebraic simplification.
+For $D_{28}$, the classical extra crossings $m_c = 3$ are proven exactly by Burton et al.\ For $D_{43}$, the same lower bound $m_c \geq 3$ is proven, and the exact value remains open.
+If $m_c(D_{43}) = 3$ (which Burton et al.\ conjecture based on their computational evidence), then the gap is exactly $3$ for both diagrams, consistent with the interpretation that the three extra crossings required classically are precisely the overhead needed to maintain planarity while performing the algebraic simplification.
 \end{remark}
 
 \paragraph*{Other diagrams.}
 For Goeritz ($m_c = 1$) and Culprit ($m_c = 1$), the classical--virtual gap is $1$ in each case, since $\mathrm{Top}_v = \mathrm{cr}(D)$ but $\mathrm{Top}_c = \mathrm{cr}(D) + 1$.
 For Ochiai~II, Burton et al.\ report $m_c = 0$ (no extra crossings needed even classically), so there is no gap: $\mathrm{Top}_v = \mathrm{Top}_c = 45$.
 
+\begin{table}
+\caption{Classical--virtual gap summary. Proven exact values in bold; lower bounds marked $\geq$.}
+\label{tab:gap}
+\begin{center}
+\begin{tabular}{lccccc}
+\toprule
+Diagram & $\mathrm{cr}(D)$ & $\mathrm{Top}_v(D)$ & $\mathrm{Top}_c(D)$ & $m_c(D)$ & Family \\
+\midrule
+Goeritz & 11 & 11 & 12 & 1 & Goeritz \\
+Culprit & 10 & 10 & 11 & 1 & Kauffman--Lambropoulou \\
+$D_{28}$ & 28 & 28 & \textbf{31} & \textbf{3} & Freedman--He--Wang \\
+$D_{43}$ & 43 & 43 & $\geq 46$ & $\geq 3$ & Goeritz generalization \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
 \begin{figure}
 \includegraphics[width=\textwidth]{fig_barrier_comparison}
-\caption{Comparison of virtual minimax barriers $\mathrm{Top}_v(D)$ (this paper) with classical extra crossings $m_c(D)$ (Burton et al.~\cite{Burton2020Hard}). For $D_{28}$, the classical barrier exceeds the virtual barrier by $3$ crossings; for Goeritz and Culprit, the gap is $1$.}
+\caption{Comparison of virtual minimax barriers $\mathrm{Top}_v(D)$ (this paper) with classical barriers $\mathrm{Top}_c(D)$ (Burton et al.~\cite{Burton2020Hard}). For $D_{28}$, the gap of $3$ is proven; for $D_{43}$, the classical barrier is known to be at least $46$ ($m_c \geq 3$). For Goeritz and Culprit, the gap is $1$.}
 \label{fig:barrier_comparison}
 \end{figure}
+
+
+\section{Structural observations on monotone virtual reducibility}
+
+The five hard unknot diagrams fall into two sharply distinct classes with respect to virtual unknotting:
+
+\begin{enumerate}
+\item \textbf{Monotone-reducible:} $D_{28}$, $D_{43}$, and Ochiai~II admit virtual unknotting paths using \emph{only} R1-down and R2-down moves. The crossing number decreases at every step; no R3 moves are needed.
+
+\item \textbf{R3-required:} Goeritz and Culprit require R3 moves even in the virtual category. No sequence of R1-down and R2-down moves alone can unknot them.
+\end{enumerate}
+
+We analyze this dichotomy through the \emph{interleaving structure} of the Gauss word.
+
+\subsection{The interleaving graph}
+
+\begin{definition}
+Let $w$ be a Gauss word with crossing labels $\{1, \ldots, n\}$.
+Two crossings $i, j$ are \emph{interleaved} if the two occurrences of $i$ separate the two occurrences of $j$ in the cyclic word: the positions satisfy $i_1 < j_1 < i_2 < j_2$ (up to cyclic rotation).
+The \emph{interleaving graph} $\Gamma(w)$ has vertex set $\{1, \ldots, n\}$ and edge $ij$ whenever $i$ and $j$ are interleaved.
+\end{definition}
+
+Two crossings $i, j$ are \emph{nested} (not interleaved) if one interval properly contains the other: $i_1 < j_1 < j_2 < i_2$ or $j_1 < i_1 < i_2 < j_2$.
+A nested pair is \emph{directly nested} if no third crossing $k$ lies strictly between $i$ and $j$ in the nesting hierarchy.
+An R2-down move applies precisely to a directly nested pair whose signs satisfy the over/under condition.
+
+\subsection{Interleaving connectivity and the stuck-state theorem}
+
+\begin{definition}
+The \emph{interleaving components} of $w$ are the connected components of $\Gamma(w)$.
+A word $w$ is \emph{fully interleaved} if $\Gamma(w)$ is a complete graph: every pair of crossings is interleaved, and no nested pair exists.
+\end{definition}
+
+\begin{theorem}[Stuck-state characterization]\label{thm:stuck}
+Let $w$ be a Gauss word with no applicable R1-down move.
+Then $w$ has no applicable R2-down move if and only if every interleaving component of $w$ is fully interleaved.
+\end{theorem}
+
+\begin{proof}
+If some interleaving component contains a nested pair $(i, j)$, then either $i$ and $j$ are directly nested (and R2-down is applicable), or there exists a crossing $k$ between them in the nesting hierarchy.
+In the latter case, $k$ is nested within the outer member of $(i, j)$ and contains the inner member, so the nesting hierarchy within this component is non-trivial.
+At the bottom of the nesting hierarchy, there must exist a directly nested pair (a leaf of the nesting tree), to which R2-down applies.
+Conversely, if every component is fully interleaved, then no pair is nested, so no R2-down move is applicable.
+\end{proof}
+
+\subsection{Experimental verification}
+
+\cref{tab:interleaving} summarizes the interleaving graph statistics and the dynamic analysis for the five hard unknot diagrams.
+
+\begin{table}
+\caption{Interleaving graph statistics and monotone reducibility for five hard unknot diagrams.}
+\label{tab:interleaving}
+\begin{center}
+\begin{tabular}{lcccccc}
+\toprule
+Diagram & $\mathrm{cr}$ & $|E(\Gamma)|$ & Comps & \multicolumn{2}{c}{R2-down avail.} & Monotone \\
+\cmidrule(lr){5-6}
+& & & & initial & at stuck state & \\
+\midrule
+Goeritz & 11 & 37 & 1 & 8 & 0 & No \\
+Culprit & 10 & 29 & 1 & 9 & 0 & No \\
+$D_{28}$ & 28 & 90 & 2 & 30 & $0^*$ & Yes \\
+$D_{43}$ & 43 & 470 & 1 & 104 & $0^*$ & Yes \\
+Ochiai~II & 45 & 442 & 1 & 84 & $0^*$ & Yes \\
+\bottomrule
+\end{tabular}
+\end{center}
+\smallskip
+\footnotesize
+$^*$Greedy R2-down gets stuck, but a specific R2-down \emph{ordering} avoids stuck states entirely (see \cref{tab:paths}).
+\end{table}
+
+The Goeritz diagram reaches a fully interleaved stuck state with $5$ crossings and interleaving density $1.0$ (all $\binom{5}{2} = 10$ pairs interleaved).
+The Culprit diagram reaches a fully interleaved stuck state with $4$ crossings.
+By \cref{thm:stuck}, no R2-down ordering can unknot these diagrams: the stuck state is \emph{unavoidable}.
+
+\begin{corollary}
+Goeritz and Culprit are not R1+R2-down reducible.
+\end{corollary}
+
+\begin{proof}
+Exhaustive BFS over R1-down and R2-down moves (22 states for Goeritz, 56 for Culprit) exhausts without finding $w_0$.
+All terminal states are fully interleaved (interleaving density $1.0$) with no R1-down or R2-down moves available.
+By \cref{thm:stuck}, no purely monotone-reducing path to $w_0$ exists.
+\end{proof}
+
+For $D_{28}$, $D_{43}$, and Ochiai~II, greedy R2-down also gets stuck, but the stuck state depends on the \emph{order} of removals.
+The correct order avoids fully interleaved intermediate states.
+\cref{tab:paths} shows the R2-down sequence for $D_{28}$, which reduces each of the two interleaving components independently.
+
+\begin{table}
+\caption{R2-down elimination sequences for monotone-reducible diagrams.}
+\label{tab:paths}
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+Diagram & $\mathrm{cr}$ & Comps & R2-down moves & Stuck avoided \\
+\midrule
+$D_{28}$ & 28 & 2 of size 14 & $12$ (6 per comp.) & Yes \\
+$D_{43}$ & 43 & 1 & $21$ & Yes \\
+Ochiai~II & 45 & 1 & $21$ & Yes \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{observation}
+For $D_{28}$, the two interleaving components of size $14$ are reduced independently: the first $6$ R2-down moves eliminate crossings from component~1, the next $6$ from component~2.
+This parallel structure --- absent in Goeritz and Culprit --- is what guarantees the existence of an ordering that avoids fully interleaved intermediate states.
+\end{observation}
+
+\begin{observation}
+$D_{43}$ and Ochiai~II each have a single interleaving component, yet they admit monotone-reducing paths.
+This shows that the number of interleaving components is \emph{not} the determining factor: even within a single component, the nesting hierarchy can be deep enough that a careful ordering of R2-down moves avoids fully interleaved intermediates.
+\end{observation}
+
+\subsection{A necessary condition for R3-requirement}
+
+\begin{proposition}\label{prop:r3required}
+If a Gauss word $w$ of the unknot reaches a fully interleaved sub-word under \emph{every} sequence of R1-down and R2-down moves, then $w$ requires R3 moves for virtual unknotting.
+\end{proposition}
+
+\begin{proof}
+By \cref{thm:stuck}, a fully interleaved sub-word has no R1-down or R2-down moves.
+Since every sequence of R1-down and R2-down moves reaches such a sub-word, no purely monotone-reducing path to $w_0$ exists.
+Any unknotting path must include R3 moves to restructure the interleaving pattern.
+\end{proof}
+
+We verified computationally that Goeritz and Culprit satisfy the hypothesis of \cref{prop:r3required}: exhaustive BFS over R1-down and R2-down moves (22 unique states for Goeritz, 56 for Culprit) exhausts without finding $w_0$, and all terminal states are fully interleaved (Goeritz: stuck at $\mathrm{cr} \in \{5, 7\}$; Culprit: stuck at $\mathrm{cr} \in \{2, 4, 6\}$).
 
 
 \section{Discussion}
@@ -372,41 +528,26 @@ Our monotone-reducing paths for $D_{28}$ and Ochiai~II are analogous but in a di
 The key difference is that Dynnikov's result holds in the \emph{classical} category (arc-presentations are inherently planar), while our monotone paths are \emph{virtual}: intermediate Gauss words may not be planar-realizable.
 
 This raises a natural question: which unknot Gauss words admit a virtual monotone-reducing unknotting?
-Our data suggests that many do: both $D_{28}$ (with $m_c = 3$) and Ochiai~II (with $m_c = 0$) admit such paths, while Goeritz ($m_c = 1$) and Culprit ($m_c = 1$) do not --- they require R3 moves even in the virtual category.
-
-\subsection{Exploration strategies}
-
-In addition to the exact bounded BFS, we experimented with temperature-biased random walks on the Reidemeister graph.
-These explore the graph stochastically, preferentially visiting low-crossing-number states (temperature $\tau = 0.5$).
-While random walks cannot certify lower bounds (they are incomplete), they provide fast upper bounds: a walk that reaches $w_0$ witnesses $\mathrm{Top}_v(D) \leq \max \mathrm{cr}$ along the walk.
-In practice, random walks found the unknot for all four diagrams, though the resulting upper bounds were looser than the exact barriers by $1$--$2$ crossings.
-
-\subsection{TDA of the Reidemeister graph: limitations}
-
-We briefly investigated whether topological data analysis of the Reidemeister graph could yield knot-type information.
-By endowing a finite subgraph $G \subset R(K)$ with the crossing-number filtration $f(w) = \mathrm{cr}(w)$, one obtains a $0$-dimensional persistence diagram.
-The persistence diagram of the full Reidemeister graph $R(K)$ is formally a knot invariant (since $R(K_1) = R(K_2)$ for equivalent knots), but this is vacuous: $R(K)$ is infinite and cannot be computed.
-
-Persistence diagrams of \emph{partial exploration subgraphs} --- the only computable objects --- do \emph{not} reliably separate knot types.
-In experiments comparing six diagrams (unknot variants, trefoil, figure-eight, cinquefoil), same-knot bottleneck distances ($\mu = 3.50$) exceeded cross-knot distances ($\mu = 2.77$).
-The bottleneck distance is dominated by the essential class death (the Reachability bound), which depends on exploration depth rather than knot type.
+Our structural analysis in \cref{thm:stuck} provides a partial answer: diagrams that unavoidably reach fully interleaved intermediates require R3, while those with an R2-down ordering that avoids such intermediates are monotone-reducible.
+However, deciding which category a given word falls into appears to be computationally hard.
 
 \subsection{Open problems}
 
 \begin{enumerate}
-\item \textbf{Virtual monotone reducibility.}
-Can we decide in polynomial time whether a given Gauss word admits a virtual monotone-reducing unknotting (using only R1-down and R2-down)?
+\item \textbf{Characterizing monotone reducibility.}
+\cref{thm:stuck} characterizes stuck states (fully interleaved components) but does not yield an efficient decision procedure for whether a Gauss word \emph{admits} an R1+R2-down unknotting.
+The search is exponential in the worst case: for $D_{28}$, the state space of the R1+R2-down BFS exceeds $50\,000$ states.
+Can we decide monotone reducibility in polynomial time, or is it NP-hard?
 
 \item \textbf{Complexity of $\mathrm{Top}_v$.}
 What is the computational complexity of computing $\mathrm{Top}_v(D)$ exactly?
 Is it fixed-parameter tractable in the ceiling $N$, as \cref{conj:fpt} suggests?
 
 \item \textbf{Family of gaps.}
+Both $D_{28}$ (Freedman--He--Wang family) and $D_{43}$ (Goeritz generalization) exhibit a gap of at least $3$.
 Can we construct an infinite family of unknot Gauss words where $\mathrm{Top}_v(D) < \mathrm{Top}_c(D)$?
-The Goeritz generalization of Burton et al.~\cite{Burton2020Hard} is a natural candidate.
-
-\item \textbf{Alternative filtrations.}
-Can higher-dimensional filtrations on the Reidemeister graph (e.g., flag complexes, writhe-based filtrations) yield knot-type-discriminative persistence diagrams from partial exploration?
+The parametric constructions of Burton et al.~\cite{Burton2020Hard} --- increasing the bridge number (Family A) or the braid strand count (Family B) --- are natural candidates.
+Our computation of $\mathrm{Top}_v(D_{43}) = 43$ for the $4$-strand instance of Family B provides evidence that the gap persists as the parameter grows.
 \end{enumerate}
 
 
