@@ -1,0 +1,216 @@
+{
+  "Goeritz": {
+    "initial_cn": 11,
+    "m_s2": 1,
+    "N_upper_test": {
+      "ceiling": 11,
+      "reachable": true,
+      "exhaustive": true,
+      "states_visited": 568,
+      "edges_explored": 874,
+      "wall_time": 0.004,
+      "cn_distribution": {
+        "11": 34,
+        "9": 34,
+        "7": 164,
+        "10": 19,
+        "5": 71,
+        "8": 41,
+        "6": 172,
+        "4": 24,
+        "3": 6,
+        "2": 1,
+        "1": 1,
+        "0": 1
+      }
+    },
+    "N_lower_test": {
+      "ceiling": 10,
+      "reachable": false,
+      "exhaustive": true,
+      "states_visited": 0,
+      "wall_time": 0.0
+    },
+    "exact_barrier": 11,
+    "status": "PROVEN EXACT"
+  },
+  "Culprit": {
+    "initial_cn": 10,
+    "m_s2": 1,
+    "N_upper_test": {
+      "ceiling": 10,
+      "reachable": true,
+      "exhaustive": true,
+      "states_visited": 304,
+      "edges_explored": 452,
+      "wall_time": 0.002,
+      "cn_distribution": {
+        "10": 25,
+        "8": 29,
+        "6": 79,
+        "9": 17,
+        "4": 32,
+        "7": 35,
+        "5": 77,
+        "3": 7,
+        "2": 1,
+        "1": 1,
+        "0": 1
+      }
+    },
+    "N_lower_test": {
+      "ceiling": 9,
+      "reachable": false,
+      "exhaustive": true,
+      "states_visited": 0,
+      "wall_time": 0.0
+    },
+    "exact_barrier": 10,
+    "status": "PROVEN EXACT"
+  },
+  "D28": {
+    "initial_cn": 28,
+    "m_s2": 3,
+    "N_upper_test": {
+      "ceiling": 28,
+      "reachable": true,
+      "exhaustive": true,
+      "states_visited": 1466,
+      "edges_explored": 1907,
+      "wall_time": 0.016,
+      "cn_distribution": {
+        "28": 81,
+        "26": 101,
+        "24": 90,
+        "27": 53,
+        "22": 81,
+        "25": 49,
+        "20": 71,
+        "23": 45,
+        "18": 65,
+        "21": 41,
+        "17": 33,
+        "16": 54,
+        "19": 36,
+        "15": 29,
+        "14": 44,
+        "13": 25,
+        "12": 33,
+        "11": 20,
+        "10": 27,
+        "9": 89,
+        "8": 141,
+        "7": 95,
+        "6": 62,
+        "5": 61,
+        "4": 30,
+        "3": 7,
+        "2": 1,
+        "1": 1,
+        "0": 1
+      }
+    },
+    "N_lower_test": {
+      "ceiling": 27,
+      "reachable": false,
+      "exhaustive": true,
+      "states_visited": 0,
+      "wall_time": 0.0
+    },
+    "exact_barrier": 28,
+    "status": "PROVEN EXACT"
+  },
+  "OchiaiII": {
+    "initial_cn": 45,
+    "m_s2": 0,
+    "N_upper_test": {
+      "ceiling": 45,
+      "reachable": true,
+      "exhaustive": true,
+      "states_visited": 3952,
+      "edges_explored": 12386,
+      "wall_time": 0.22,
+      "cn_distribution": {
+        "45": 226,
+        "43": 303,
+        "41": 269,
+        "44": 87,
+        "39": 254,
+        "42": 83,
+        "37": 247,
+        "40": 79,
+        "35": 231,
+        "38": 75,
+        "33": 216,
+        "36": 71,
+        "31": 192,
+        "34": 67,
+        "29": 166,
+        "32": 63,
+        "27": 151,
+        "30": 59,
+        "26": 51,
+        "25": 135,
+        "28": 54,
+        "24": 47,
+        "23": 118,
+        "22": 43,
+        "21": 91,
+        "20": 39,
+        "19": 79,
+        "18": 35,
+        "17": 61,
+        "16": 31,
+        "15": 52,
+        "14": 28,
+        "13": 38,
+        "12": 24,
+        "11": 31,
+        "10": 20,
+        "9": 24,
+        "8": 16,
+        "7": 18,
+        "6": 12,
+        "5": 32,
+        "4": 25,
+        "3": 6,
+        "2": 1,
+        "1": 1,
+        "0": 1
+      }
+    },
+    "N_lower_test": {
+      "ceiling": 44,
+      "reachable": false,
+      "exhaustive": true,
+      "states_visited": 0,
+      "wall_time": 0.0
+    },
+    "exact_barrier": 45,
+    "status": "PROVEN EXACT"
+  },
+  "Unknot": {
+    "initial_cn": 0,
+    "m_s2": 0,
+    "N_upper_test": {
+      "ceiling": 0,
+      "reachable": true,
+      "exhaustive": true,
+      "states_visited": 1,
+      "edges_explored": 0,
+      "wall_time": 0.0,
+      "cn_distribution": {
+        "0": 1
+      }
+    },
+    "N_lower_test": {
+      "ceiling": -1,
+      "reachable": false,
+      "exhaustive": true,
+      "states_visited": 0,
+      "wall_time": 0.0
+    },
+    "exact_barrier": 0,
+    "status": "PROVEN EXACT"
+  }
+}
