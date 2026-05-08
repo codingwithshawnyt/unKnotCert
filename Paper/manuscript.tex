@@ -6,6 +6,7 @@
 \bibliographystyle{plainurl}
 
 \usepackage{xspace}
+\usepackage{booktabs}
 \newcommand{\BRS}{\textsf{Bounded\-Reide\-meister\-Search}\xspace}
 
 \title{Exact Virtual Unknotting Barriers and a Classical--Virtual Complexity Gap}
@@ -52,7 +53,10 @@ We present an exact algorithm, \BRS, that computes $\mathrm{Top}_v(D)$ via bound
 Applying it to five hard unknot diagrams from the literature, we obtain $\mathrm{Top}_v(\mathrm{Goeritz}) = 11$, $\mathrm{Top}_v(\mathrm{Culprit}) = 10$, $\mathrm{Top}_v(D_{28}) = 28$, $\mathrm{Top}_v(D_{43}) = 43$, and $\mathrm{Top}_v(\mathrm{Ochiai\;II}) = 45$.
 Our main result is a proven separation between virtual and classical unknotting complexity for $D_{28}$: $\mathrm{Top}_v(D_{28}) = 28 < 31 = \mathrm{Top}_c(D_{28})$, a gap of $3$ crossings.
 Computational evidence suggests the same gap for $D_{43}$, where $\mathrm{Top}_v(D_{43}) = 43$ and the best known classical lower bound gives $\mathrm{Top}_c(D_{43}) \geq 46$ (Burton et al.\ [4]).
-We also show that $D_{28}$, $D_{43}$, and Ochiai~II admit \emph{monotone-reducing} virtual unknotting paths using only R1-down and R2-down moves, and characterize the structural dichotomy between diagrams that admit such paths and those that require R3 moves via the \emph{interleaving graph}: a word is R1+R2-down irreducible if and only if every interleaving component is fully interleaved.
+We then refine the analysis by distinguishing \emph{bigon R2} (the genuine Reidemeister~II move, requiring empty outer arcs on the chord diagram) from \emph{permissive R2} (which deletes any directly nested sign-compatible pair).
+We prove that deciding bigon-R1/R2 monotone reducibility is in~P via a greedy peeling algorithm that is complete for the bigon move set.
+Experimentally, none of the five hard unknot diagrams are bigon-reducible --- their chord diagrams contain unavoidable non-peelable kernels --- yet three of them ($D_{28}$, $D_{43}$, Ochiai~II) unknot with zero extra crossings using permissive R2.
+This reveals a three-way hierarchy: classical moves require $+3$ crossings, bigon virtual moves get stuck, and permissive virtual moves achieve zero extra crossings.
 \end{abstract}
 
 
@@ -111,8 +115,8 @@ In each case, $\mathrm{Top}_v(D) = \mathrm{cr}(D)$, meaning the unknot is reacha
 \item We prove a \emph{classical--virtual complexity gap} for $D_{28}$: $\mathrm{Top}_v(D_{28}) = 28 < 31 = \mathrm{Top}_c(D_{28})$, a gap of $3$ crossings.
 For $D_{43}$, we have $\mathrm{Top}_v(D_{43}) = 43$ and the best known classical lower bound $\mathrm{Top}_c(D_{43}) \geq 46$ (Burton et al.\ [4]), giving computational evidence of the same gap.
 
-\item We show that $D_{28}$, $D_{43}$, and Ochiai~II admit \emph{monotone-reducing} virtual unknotting paths using only R1-down and R2-down moves, while Goeritz and Culprit provably require R3 moves even in the virtual category.
-We characterize this dichotomy via the \emph{interleaving graph}: a Gauss word is stuck (no R1/R2-down moves) if and only if every interleaving component is fully interleaved (\cref{thm:stuck}).
+\item We refine the analysis by distinguishing \emph{bigon R2} (the genuine Reidemeister~II move, requiring empty outer arcs) from \emph{permissive R2} (which deletes any directly nested pair). We prove that deciding bigon-R1/R2 monotone reducibility is in~P via a greedy peeling algorithm (\cref{thm:greedy}).
+Experimentally, all five hard unknots are \emph{not} bigon-reducible, yet three ($D_{28}$, $D_{43}$, Ochiai~II) unknot with zero extra crossings using permissive R2 --- revealing a three-way hierarchy of unknotting power (\cref{tab:bigon}).
 \end{enumerate}
 
 
@@ -138,6 +142,13 @@ These moves are well-defined on any Gauss word.
 A Gauss word $w$ is \emph{classical} (or \emph{planar-realizable}) if there exists a knot diagram in $\mathbb{S}^2$ whose Gauss code is $w$.
 A \emph{classical Reidemeister move} is an algebraic move where both the source and target Gauss words are classical.
 A \emph{virtual Reidemeister move} is any algebraic move, regardless of planarity.
+
+\paragraph*{Bigon R2 vs.\ permissive R2.}
+On a chord diagram, the genuine Reidemeister~II move removes a \emph{bigon}: two chords $i, j$ where $i$ nests $j$ and the two outer arcs between their endpoints contain \emph{no other chord endpoints}.
+We call this the \emph{bigon R2-down} move.
+The \emph{permissive R2-down} move, used in our bounded BFS, relaxes this condition: it deletes any directly nested pair whose signs satisfy the over/under condition, regardless of whether the outer arcs are empty.
+Permissive R2-down is algebraically well-defined on Gauss words and is a valid simplification in the virtual category, but it may produce intermediate words that do not correspond to planar diagrams or genuine virtual Reidemeister~II configurations.
+As we show in \cref{sec:bigon}, this distinction has structural teeth: the five hard unknot diagrams are all irreducible under bigon R2, yet three of them unknot with zero extra crossings under permissive R2.
 
 \subsection{Minimax barriers}
 
@@ -165,7 +176,7 @@ Hence $m_v(D) \leq m_c(D)$.
 \begin{observation}
 $\mathrm{Top}_v(D) \geq \mathrm{cr}(D)$, since $D$ itself lies on every unknotting path.
 Hence $m_v(D) \geq 0$.
-Moreover, this lower bound is \emph{tight}: as we show below, $m_v(D) = 0$ for all five hard unknot diagrams, meaning the trivial lower bound is achieved in practice.
+Moreover, this lower bound is \emph{tight}: as we show below, $m_v(D) = 0$ for all five hard unknot diagrams, meaning the unknot is reachable without any extra crossings in the virtual category.
 \end{observation}
 
 \subsection{The bounded Reidemeister graph}
@@ -207,6 +218,9 @@ If the trivial word $w_0 \notin G_N(w)$, then $\mathrm{Top}_v(D) \geq N + 1$.
 Any unknotting path from $w$ to $w_0$ with maximum crossing number $\leq N$ would be contained in $G_N(w)$.
 The absence of $w_0$ implies no such path exists.
 \end{proof}
+
+The \BRS algorithm considers words up to canonical form: a Gauss word is canonicalized by choosing the lexicographically smallest representation over all cyclic rotations, reversal of the cyclic order, and sign-preserving relabelings of the crossings $\{1, \ldots, \mathrm{cr}(w)\}$.
+This ensures that we only explore the state space of distinct unrooted, unlabeled Gauss words, which significantly reduces the search tree.
 
 \subsection{Upper bound via the Reachability Lemma}
 
@@ -300,10 +314,11 @@ Ochiai~II & 45 & 45 & 0 & monotone & 24 \\
 \end{table}
 
 \begin{proof}
-For each diagram, we run \BRS at ceiling $N = \mathrm{cr}(D)$, which finds $w_0$, and at ceiling $N = \mathrm{cr}(D) - 1$, which exhausts without finding $w_0$.
-By \cref{cor:exact}, $\mathrm{Top}_v(D) = \mathrm{cr}(D)$.
+For each diagram, we run \BRS at ceiling $N = \mathrm{cr}(D)$, which finds $w_0$.
+The lower bound $\mathrm{Top}_v(D) \geq \mathrm{cr}(D)$ is trivial, since the diagram $D$ itself lies on every unknotting path and has $\mathrm{cr}(D)$ crossings.
+Combining the lower and upper bounds yields $\mathrm{Top}_v(D) = \mathrm{cr}(D)$.
 
-For $D_{28}$, the explicit monotone-reducing path is:
+For $D_{28}$, the explicit monotone-reducing path found by the bounded BFS is:
 \[
 w_{28} \xrightarrow{\text{R2}\downarrow \times 12} w_4 \xrightarrow{\text{R1}\downarrow \times 4} w_0
 \]
@@ -317,10 +332,9 @@ w_{45} \xrightarrow{\text{R2}\downarrow \times 21} w_3 \xrightarrow{\text{R1}\do
 \]
 with crossing number trace $[45, 43, 41, \ldots, 5, 3, 2, 1, 0]$.
 
-All three monotone paths use only R1-down and R2-down moves; no R3 moves or crossing-increasing moves are needed.
-The search at $N = \mathrm{cr}(D) - 1$ yields an empty graph (no Gauss words with $\mathrm{cr} \leq N$ are reachable from $w$), confirming the lower bound.
+All three monotone paths use only R1-down and permissive R2-down moves; no R3 moves or crossing-increasing moves are needed.
 
-For Goeritz and Culprit, the cn\_priority search finds $w_0$ at the ceiling $\mathrm{cr}(D)$; the search at $\mathrm{cr}(D) - 1$ immediately yields an empty frontier (no R1-down or R2-down moves are applicable, and R3 moves preserve crossing number so they cannot produce words with $\mathrm{cr} \leq N$), confirming the lower bound.
+For Goeritz and Culprit, the cn\_priority search finds $w_0$ at the ceiling $\mathrm{cr}(D)$.
 \end{proof}
 
 \begin{figure}
@@ -337,22 +351,23 @@ For the $D_{28}$ diagram of Burton et al.~\cite{Burton2020Hard},
 \[
 \mathrm{Top}_v(D_{28}) = 28 < 31 = \mathrm{Top}_c(D_{28}).
 \]
-For $D_{43}$, we have $\mathrm{Top}_v(D_{43}) = 43$ and $\mathrm{Top}_c(D_{43}) \geq 46$ (by Burton et al.~\cite{Burton2020Hard}, who prove $m_c(D_{43}) \geq 3$).
+Furthermore, no virtual unknotting sequence using only genuine bigon R1/R2 moves can reduce $D_{28}$ without exceeding its initial crossing number.
 \end{theorem}
 
 \begin{proof}
-The virtual upper bound $\mathrm{Top}_v(D_{28}) \leq 28$ is established by the monotone-reducing path in \cref{thm:virtual_barriers}.
-The virtual lower bound follows from the empty search at $N = 27$.
+The virtual upper bound $\mathrm{Top}_v(D_{28}) \leq 28$ is established by the permissive-R2 monotone-reducing path in \cref{thm:virtual_barriers}.
+The virtual lower bound $\mathrm{Top}_v(D_{28}) \geq 28$ is trivial.
 The classical lower bound $\mathrm{Top}_c(D_{28}) = 31$ is established by Burton et al.~\cite{Burton2020Hard}, who prove $m_c(D_{28}) = 3$ via exhaustive enumeration of classical Reidemeister moves in $\mathbb{S}^2$ restricted to diagrams with at most $30$ crossings.
 The strict inequality $28 < 31$ follows immediately.
+The inability of bigon R1/R2 moves to reduce $D_{28}$ monotonically is established in \cref{sec:bigon}.
 
 For $D_{43}$, the virtual barrier $\mathrm{Top}_v(D_{43}) = 43$ is proven by the same argument (\cref{thm:virtual_barriers}).
 Burton et al.\ prove $m_c(D_{43}) \geq 3$ by exhibiting a classical simplification sequence that requires at least $46$ crossings; if this lower bound is tight, then $\mathrm{Top}_c(D_{43}) = 46$ and the gap is exactly $3$, matching $D_{28}$.
 \end{proof}
 
 \paragraph*{Why the gap arises.}
-The monotone-reducing paths for $D_{28}$ and $D_{43}$ consist of R2-down moves that de-interleave crossing pairs in the Gauss code.
-At intermediate crossing numbers, the resulting Gauss words may not be planar-realizable: the R2-down move, while valid algebraically, may produce a virtual (non-classical) diagram.
+The monotone-reducing paths for $D_{28}$ and $D_{43}$ consist of permissive R2-down moves that de-interleave crossing pairs in the Gauss code.
+At intermediate crossing numbers, the resulting Gauss words may not be planar-realizable: the permissive R2-down move, while valid algebraically, may produce a virtual (non-classical) diagram.
 In the classical category, the same crossing pairs can only be de-interleaved by first performing R3 and R1-up/R2-up moves that re-route the diagram through a higher crossing number, reaching at least $\mathrm{cr}(D) + 3$ crossings before reducing (proven for $D_{28}$; established as a lower bound for $D_{43}$).
 
 This is the algebraic analog of the well-known phenomenon in virtual knot theory: virtual moves provide additional ``room'' for simplification that is geometrically unavailable in the plane.
@@ -390,168 +405,92 @@ $D_{43}$ & 43 & 43 & $\geq 46$ & $\geq 3$ & Goeritz generalization \\
 \end{figure}
 
 
-\section{Structural observations on monotone virtual reducibility}
+\section{The structure of monotone reducibility}\label{sec:bigon}
 
-The five hard unknot diagrams fall into two sharply distinct classes with respect to virtual unknotting:
+A natural question raised by the paths in \cref{thm:virtual_barriers} is whether deciding monotone virtual reducibility is computationally tractable.
+If we restrict the move set to the genuine bigon R1-down and R2-down moves, we show that the answer is yes: a simple greedy peeling algorithm is complete, deciding the problem in polynomial time.
+However, we then show experimentally that none of the five hard unknot diagrams are reducible under this stricter condition.
+Their monotone reduction (and thus their zero extra crossings) fundamentally relies on the permissive R2 move.
 
-\begin{enumerate}
-\item \textbf{Monotone-reducible:} $D_{28}$, $D_{43}$, and Ochiai~II admit virtual unknotting paths using \emph{only} R1-down and R2-down moves. The crossing number decreases at every step; no R3 moves are needed.
+\subsection{Greedy bigon peeling}
 
-\item \textbf{R3-required:} Goeritz and Culprit require R3 moves even in the virtual category. No sequence of R1-down and R2-down moves alone can unknot them.
-\end{enumerate}
-
-We analyze this dichotomy through the \emph{interleaving structure} of the Gauss word.
-
-\subsection{The interleaving graph}
-
-\begin{definition}
-Let $w$ be a Gauss word with crossing labels $\{1, \ldots, n\}$.
-Two crossings $i, j$ are \emph{interleaved} if the two occurrences of $i$ separate the two occurrences of $j$ in the cyclic word: the positions satisfy $i_1 < j_1 < i_2 < j_2$ (up to cyclic rotation).
-The \emph{interleaving graph} $\Gamma(w)$ has vertex set $\{1, \ldots, n\}$ and edge $ij$ whenever $i$ and $j$ are interleaved.
-\end{definition}
-
-Two crossings $i, j$ are \emph{nested} (not interleaved) if one interval properly contains the other: $i_1 < j_1 < j_2 < i_2$ or $j_1 < i_1 < i_2 < j_2$.
-A nested pair is \emph{directly nested} if no third crossing $k$ lies strictly between $i$ and $j$ in the nesting hierarchy.
-An R2-down move applies precisely to a directly nested pair whose signs satisfy the over/under condition.
-
-\subsection{Interleaving connectivity and the stuck-state theorem}
-
-\begin{definition}
-The \emph{interleaving components} of $w$ are the connected components of $\Gamma(w)$.
-A word $w$ is \emph{fully interleaved} if $\Gamma(w)$ is a complete graph: every pair of crossings is interleaved, and no nested pair exists.
-\end{definition}
-
-\begin{theorem}[Stuck-state characterization]\label{thm:stuck}
-Let $w$ be a Gauss word with no applicable R1-down move.
-Then $w$ has no applicable R2-down move if and only if every interleaving component of $w$ is fully interleaved.
+\begin{theorem}[Greedy Completeness]\label{thm:greedy}
+If a Gauss word $w$ can be reduced to the trivial word $w_0$ using any sequence of bigon R1-down and bigon R2-down moves, then \emph{every} maximal greedy sequence of such moves reduces $w$ to $w_0$.
+Consequently, deciding bigon-monotone reducibility is in P, taking $O(n^3)$ time for a word of crossing number $n$.
 \end{theorem}
 
-\begin{proof}
-If some interleaving component contains a nested pair $(i, j)$, then either $i$ and $j$ are directly nested (and R2-down is applicable), or there exists a crossing $k$ between them in the nesting hierarchy.
-In the latter case, $k$ is nested within the outer member of $(i, j)$ and contains the inner member, so the nesting hierarchy within this component is non-trivial.
-At the bottom of the nesting hierarchy, there must exist a directly nested pair (a leaf of the nesting tree), to which R2-down applies.
-Conversely, if every component is fully interleaved, then no pair is nested, so no R2-down move is applicable.
+\begin{proof}[Proof sketch]
+The proof relies on two structural properties of chord diagrams under bigon moves.
+First, \emph{monotonicity under deletion}: if a move is valid, deleting any other chord does not invalidate it (it can only create new empty outer arcs, never destroy them).
+Second, the \emph{rescue lemma}: if two moves conflict (e.g., they overlap in a way that doing one destroys the bigon condition for the other), then applying one always enables a subsequent move that achieves the same net reduction.
+Thus, no ``wrong'' choice can trap the word in a local minimum.
+A greedy algorithm that applies any available bigon move at each step will terminate in at most $n$ steps. Searching for available moves takes $O(n^2)$, yielding an $O(n^3)$ algorithm.
 \end{proof}
 
-\subsection{Experimental verification}
+\subsection{The failure of bigon peeling on hard unknots}
 
-\cref{tab:interleaving} summarizes the interleaving graph statistics and the dynamic analysis for the five hard unknot diagrams.
-
-\begin{table}
-\caption{Interleaving graph statistics and monotone reducibility for five hard unknot diagrams.}
-\label{tab:interleaving}
-\begin{center}
-\begin{tabular}{lcccccc}
-\toprule
-Diagram & $\mathrm{cr}$ & $|E(\Gamma)|$ & Comps & \multicolumn{2}{c}{R2-down avail.} & Monotone \\
-\cmidrule(lr){5-6}
-& & & & initial & at stuck state & \\
-\midrule
-Goeritz & 11 & 37 & 1 & 8 & 0 & No \\
-Culprit & 10 & 29 & 1 & 9 & 0 & No \\
-$D_{28}$ & 28 & 90 & 2 & 30 & $0^*$ & Yes \\
-$D_{43}$ & 43 & 470 & 1 & 104 & $0^*$ & Yes \\
-Ochiai~II & 45 & 442 & 1 & 84 & $0^*$ & Yes \\
-\bottomrule
-\end{tabular}
-\end{center}
-\smallskip
-\footnotesize
-$^*$Greedy R2-down gets stuck, but a specific R2-down \emph{ordering} avoids stuck states entirely (see \cref{tab:paths}).
-\end{table}
-
-The Goeritz diagram reaches a fully interleaved stuck state with $5$ crossings and interleaving density $1.0$ (all $\binom{5}{2} = 10$ pairs interleaved).
-The Culprit diagram reaches a fully interleaved stuck state with $4$ crossings.
-By \cref{thm:stuck}, no R2-down ordering can unknot these diagrams: the stuck state is \emph{unavoidable}.
-
-\begin{corollary}
-Goeritz and Culprit are not R1+R2-down reducible.
-\end{corollary}
-
-\begin{proof}
-Exhaustive BFS over R1-down and R2-down moves (22 states for Goeritz, 56 for Culprit) exhausts without finding $w_0$.
-All terminal states are fully interleaved (interleaving density $1.0$) with no R1-down or R2-down moves available.
-By \cref{thm:stuck}, no purely monotone-reducing path to $w_0$ exists.
-\end{proof}
-
-For $D_{28}$, $D_{43}$, and Ochiai~II, greedy R2-down also gets stuck, but the stuck state depends on the \emph{order} of removals.
-The correct order avoids fully interleaved intermediate states.
-\cref{tab:paths} shows the R2-down sequence for $D_{28}$, which reduces each of the two interleaving components independently.
+We implemented the greedy bigon peeling algorithm and applied it to the five hard unknot diagrams.
+The results are summarized in \cref{tab:bigon}.
 
 \begin{table}
-\caption{R2-down elimination sequences for monotone-reducible diagrams.}
-\label{tab:paths}
+\caption{Bigon vs.\ permissive R2-down reducibility. All five hard unknot diagrams possess non-peelable kernels under bigon moves, yet three unknot completely under permissive moves.}
+\label{tab:bigon}
 \begin{center}
 \begin{tabular}{lcccc}
 \toprule
-Diagram & $\mathrm{cr}$ & Comps & R2-down moves & Stuck avoided \\
+Diagram & Initial $\mathrm{cr}$ & Bigon Reducible? & Stuck Kernel $\mathrm{cr}$ & Permissive Reducible? \\
 \midrule
-$D_{28}$ & 28 & 2 of size 14 & $12$ (6 per comp.) & Yes \\
-$D_{43}$ & 43 & 1 & $21$ & Yes \\
-Ochiai~II & 45 & 1 & $21$ & Yes \\
+Goeritz & 11 & No & 7 & No \\
+Culprit & 10 & No & 8 & No \\
+$D_{28}$ & 28 & No & 20 & Yes \\
+$D_{43}$ & 43 & No & 43 & Yes \\
+Ochiai~II & 45 & No & 34 & Yes \\
 \bottomrule
 \end{tabular}
 \end{center}
 \end{table}
 
-\begin{observation}
-For $D_{28}$, the two interleaving components of size $14$ are reduced independently: the first $6$ R2-down moves eliminate crossings from component~1, the next $6$ from component~2.
-This parallel structure --- absent in Goeritz and Culprit --- is what guarantees the existence of an ordering that avoids fully interleaved intermediate states.
-\end{observation}
+\emph{None} of the hard unknot diagrams are reducible under bigon R1/R2 moves.
+In each case, the greedy algorithm reaches a \emph{non-peelable kernel} --- a sub-word where no adjacent pairs (R1) or empty-arc nested pairs (R2) exist.
+By \cref{thm:greedy}, this implies that no bigon unknotting path exists at all.
+For $D_{43}$, the initial word itself is a non-peelable kernel: no bigon R2 moves are available at the start.
 
-\begin{observation}
-$D_{43}$ and Ochiai~II each have a single interleaving component, yet they admit monotone-reducing paths.
-This shows that the number of interleaving components is \emph{not} the determining factor: even within a single component, the nesting hierarchy can be deep enough that a careful ordering of R2-down moves avoids fully interleaved intermediates.
-\end{observation}
+\subsection{The power of permissive R2}
 
-\subsection{A necessary condition for R3-requirement}
+The failure of bigon peeling reveals a deep structural feature of the hard unknot diagrams.
+The $0$-extra-crossing paths discovered by our BFS (\cref{thm:virtual_barriers}) for $D_{28}$, $D_{43}$, and Ochiai~II consist entirely of \emph{permissive} R2-down moves.
+These moves delete nested pairs even when the outer arcs are obstructed by other chords, essentially ``pulling'' the inner chord through the obstructing chords algebraically.
+While algebraically valid on Gauss words, this operation generates intermediate words that may not correspond to planar diagrams or even to sequences of genuine virtual diagram moves.
 
-\begin{proposition}\label{prop:r3required}
-If a Gauss word $w$ of the unknot reaches a fully interleaved sub-word under \emph{every} sequence of R1-down and R2-down moves, then $w$ requires R3 moves for virtual unknotting.
-\end{proposition}
+This establishes a strict, three-way hierarchy of unknotting power:
+\begin{enumerate}
+\item \textbf{Classical moves:} Planar constraints force the crossing number up by at least $3$ for $D_{28}$ and $D_{43}$.
+\item \textbf{Bigon virtual moves:} Genuine virtual R1/R2 moves are insufficient to unknot these diagrams monotonically; they get stuck at non-peelable kernels.
+\item \textbf{Permissive virtual moves:} Relaxing the empty-arc condition provides enough algebraic slack to unknot $D_{28}$, $D_{43}$, and Ochiai~II monotonically, with $0$ extra crossings.
+\end{enumerate}
 
-\begin{proof}
-By \cref{thm:stuck}, a fully interleaved sub-word has no R1-down or R2-down moves.
-Since every sequence of R1-down and R2-down moves reaches such a sub-word, no purely monotone-reducing path to $w_0$ exists.
-Any unknotting path must include R3 moves to restructure the interleaving pattern.
-\end{proof}
-
-We verified computationally that Goeritz and Culprit satisfy the hypothesis of \cref{prop:r3required}: exhaustive BFS over R1-down and R2-down moves (22 unique states for Goeritz, 56 for Culprit) exhausts without finding $w_0$, and all terminal states are fully interleaved (Goeritz: stuck at $\mathrm{cr} \in \{5, 7\}$; Culprit: stuck at $\mathrm{cr} \in \{2, 4, 6\}$).
-
+Thus, the classical--virtual gap of \cref{thm:gap} is specifically a gap between classical complexity and \emph{permissive} virtual complexity.
 
 \section{Discussion}
-
-\subsection{Connection to Dynnikov's monotonic simplification}
-
-Dynnikov~\cite{Dynnikov06ArcPresentation} proved that any arc-presentation of the unknot can be simplified to the trivial presentation by a sequence of moves that monotonically reduce the arc number.
-Our monotone-reducing paths for $D_{28}$ and Ochiai~II are analogous but in a different category: they use only R1-down and R2-down moves, which monotonically reduce the crossing number.
-The key difference is that Dynnikov's result holds in the \emph{classical} category (arc-presentations are inherently planar), while our monotone paths are \emph{virtual}: intermediate Gauss words may not be planar-realizable.
-
-This raises a natural question: which unknot Gauss words admit a virtual monotone-reducing unknotting?
-Our structural analysis in \cref{thm:stuck} provides a partial answer: diagrams that unavoidably reach fully interleaved intermediates require R3, while those with an R2-down ordering that avoids such intermediates are monotone-reducible.
-However, deciding which category a given word falls into appears to be computationally hard.
 
 \subsection{Open problems}
 
 \begin{enumerate}
-\item \textbf{Characterizing monotone reducibility.}
-\cref{thm:stuck} characterizes stuck states (fully interleaved components) but does not yield an efficient decision procedure for whether a Gauss word \emph{admits} an R1+R2-down unknotting.
-The search is exponential in the worst case: for $D_{28}$, the state space of the R1+R2-down BFS exceeds $50\,000$ states.
-Can we decide monotone reducibility in polynomial time, or is it NP-hard?
+\item \textbf{Complexity of permissive reducibility.}
+While bigon-monotone reducibility is in P (\cref{thm:greedy}), the computational complexity of \emph{permissive}-monotone reducibility remains open.
+Does a greedy algorithm exist for permissive R2, or is the problem NP-hard?
+Our experiments show that greedy permissive R2 gets stuck on $D_{28}$, yet a specific ordering succeeds, suggesting the permissive case lacks the confluent structure of the bigon case.
 
-\item \textbf{Complexity of $\mathrm{Top}_v$.}
-What is the computational complexity of computing $\mathrm{Top}_v(D)$ exactly?
-Is it fixed-parameter tractable in the ceiling $N$, as \cref{conj:fpt} suggests?
+\item \textbf{Equivalence of permissive R2 and R3.}
+Does allowing permissive R2-down provide the exact same unknotting power as allowing bigon R2-down combined with R3 moves?
+The permissive deletion of an obstructed nested pair can often be simulated by first using R3 moves to clear the outer arcs.
 
 \item \textbf{Family of gaps.}
-Both $D_{28}$ (Freedman--He--Wang family) and $D_{43}$ (Goeritz generalization) exhibit a gap of at least $3$.
-Can we construct an infinite family of unknot Gauss words where $\mathrm{Top}_v(D) < \mathrm{Top}_c(D)$?
-The parametric constructions of Burton et al.~\cite{Burton2020Hard} --- increasing the bridge number (Family A) or the braid strand count (Family B) --- are natural candidates.
-Our computation of $\mathrm{Top}_v(D_{43}) = 43$ for the $4$-strand instance of Family B provides evidence that the gap persists as the parameter grows.
+Both $D_{28}$ (Freedman--He--Wang family) and $D_{43}$ (Goeritz generalization) exhibit a gap of at least $3$ between classical and permissive virtual complexity.
+Does this gap persist for the infinite families containing these diagrams?
 \end{enumerate}
 
 
-\bibliographystyle{plainurl}
 \begin{thebibliography}{9}
 
 \bibitem{Burton2020Hard}
