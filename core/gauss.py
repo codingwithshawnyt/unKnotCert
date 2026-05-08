@@ -51,8 +51,16 @@ def _is_nested(pairs, a, b):
     return a1 < b1 < b2 < a2
 
 
-def get_valid_actions(word: List[Token], next_id: int) -> List[MoveDescriptor]:
+def get_valid_actions(word: List[Token], next_id: int,
+                     bigon_r2: bool = False) -> List[MoveDescriptor]:
     """Detect all valid Reidemeister moves for a Gauss word.
+
+    Args:
+        word: The Gauss word.
+        next_id: Next available crossing ID for up-moves.
+        bigon_r2: If True, use bigon condition for R2_down (classical Reidemeister
+                  move). If False, use permissive direct-nesting condition
+                  (algebraic/virtual move, the default for barrier computation).
 
     Returns list of move descriptors.  Down-moves use crossing IDs;
     up-moves use positions and new tokens.
@@ -78,55 +86,65 @@ def get_valid_actions(word: List[Token], next_id: int) -> List[MoveDescriptor]:
                 actions.append(desc)
 
     # ---- R2 down ----
-    # Crossing a (outer) contains exactly one crossing b (inner), meaning:
-    #   a1 < b1 < b2 < a2  AND  no other crossing c is nested in b
-    #   while also nested in a (i.e., b is the *innermost* nested crossing
-    #   that is directly nested in a without another crossing between them).
+    # R2-down is well-defined only on *nested* pairs: chord a directly
+    # nests chord b (a1 < b1 < b2 < a2), with no third chord strictly
+    # between them in the nesting hierarchy. Two interleaved chords
+    # (a1 < b1 < a2 < b2) are NOT R2-eligible in any variant — deleting
+    # them would collapse a genuine linking structure (e.g., the trefoil
+    # pattern (1,2,3,1,2,3) has pairwise-interleaved chords but is not
+    # R2-reducible in any step).
     #
-    # Actually, R2_down removes any two crossings where one is directly
-    # nested inside the other with no other crossing nested between them.
-    # More precisely: a nests b, and there is no crossing c such that
-    # a nests c and c nests b.
-    # But for Gauss words, R2 means the two crossings form a bigon-like
-    # region. The condition is: a nests b and they are "adjacent" in the
-    # nesting hierarchy (no crossing in between).
-    #
-    # Simplification: a nests b, and b is directly nested in a
-    # (no crossing c with a nesting c and c nesting b).
-    for a in cids:
-        a1, sa1, a2, sa2 = pairs[a]
-        if sa1 != -sa2:
-            continue
-        directly_nested = []
-        for b in cids:
-            if b == a:
-                continue
-            b1, sb1, b2, sb2 = pairs[b]
-            if sb1 != -sb2:
-                continue
-            if not (a1 < b1 < b2 < a2):
-                continue
-            # Check b is directly nested in a (no c between them)
-            is_direct = True
-            for c in cids:
-                if c == a or c == b:
-                    continue
-                c1, sc1, c2, sc2 = pairs[c]
-                if sc1 != -sc2:
-                    continue
-                if a1 < c1 < c2 < a2 and c1 < b1 < b2 < c2:
-                    is_direct = False
-                    break
-                if a1 < c1 < b1 < b2 < c2 < a2:
-                    is_direct = False
-                    break
-            if is_direct:
-                directly_nested.append(b)
-        for b in directly_nested:
-            desc = ('R2_down', a, b)
+    # The bigon_r2 flag switches the outer-arc emptiness condition:
+    #   - bigon_r2=False (permissive): directly-nested pair suffices
+    #     (the "algebraic virtual" R2-down used throughout this paper's
+    #     barrier computations).
+    #   - bigon_r2=True (bigon): additionally requires the two outer
+    #     arcs (a1, b1) and (b2, a2) to be empty of other chord
+    #     endpoints (genuine classical R2 on a chord diagram).
+    if bigon_r2:
+        # Classical (bigon) R2-down: nested + empty outer arcs.
+        for outer, inner in get_bigon_R2_pairs(word):
+            desc = ('R2_down', outer, inner)
             if desc not in seen:
                 seen.add(desc)
                 actions.append(desc)
+    else:
+        # Permissive R2-down: directly-nested pair with opposite signs,
+        # no outer-arc condition.
+        for a in cids:
+            a1, sa1, a2, sa2 = pairs[a]
+            if sa1 != -sa2:
+                continue
+            directly_nested = []
+            for b in cids:
+                if b == a:
+                    continue
+                b1, sb1, b2, sb2 = pairs[b]
+                if sb1 != -sb2:
+                    continue
+                if not (a1 < b1 < b2 < a2):
+                    continue
+                # Check b is directly nested in a (no c strictly between them)
+                is_direct = True
+                for c in cids:
+                    if c == a or c == b:
+                        continue
+                    c1, sc1, c2, sc2 = pairs[c]
+                    if sc1 != -sc2:
+                        continue
+                    if a1 < c1 < c2 < a2 and c1 < b1 < b2 < c2:
+                        is_direct = False
+                        break
+                    if a1 < c1 < b1 < b2 < c2 < a2:
+                        is_direct = False
+                        break
+                if is_direct:
+                    directly_nested.append(b)
+            for b in directly_nested:
+                desc = ('R2_down', a, b)
+                if desc not in seen:
+                    seen.add(desc)
+                    actions.append(desc)
 
     # ---- R3 ----
     # Three mutually linked crossings a, b, c where each pair is linked
@@ -280,24 +298,25 @@ def is_bigon_R2_down(word: List[Token], outer_cid: int, inner_cid: int) -> bool:
 
 
 def get_bigon_R2_pairs(word: List[Token]) -> List[Tuple[int, int]]:
-    """Return all (outer_cid, inner_cid) pairs eligible for bigon R2-down.
+    """Return all (outer, inner) pairs eligible for bigon R2-down.
 
-    A pair is bigon-R2-eligible if:
-    - outer nests inner (i1 < j1 < j2 < i2)
-    - Both chords have opposite signs at their two endpoints
-    - The outer arcs (i1,j1) and (j2,i2) are empty of other endpoints
+    A pair is bigon-R2-eligible if and only if:
+    - The outer chord nests the inner chord (outer_1 < inner_1 < inner_2
+      < outer_2 in cyclic order);
+    - Both chords have opposite signs at their two endpoints;
+    - The two outer arcs (outer_1, inner_1) and (inner_2, outer_2) are
+      empty of other chord endpoints.
+
+    Interleaved pairs are NOT R2-eligible: R2-down is defined only on
+    nested pairs. Deleting an interleaved pair would collapse a genuine
+    linking structure (cf. the trefoil pattern (1,2,3,1,2,3), where every
+    pair is interleaved yet no R2-down is available).
     """
     if not word:
         return []
     pairs = _pair_positions(word)
     cids = sorted(pairs.keys())
     L = len(word)
-
-    occupied_by_chord = {}
-    for i, (cid, _) in enumerate(word):
-        if cid not in occupied_by_chord:
-            occupied_by_chord[cid] = set()
-        occupied_by_chord[cid].add(i)
 
     all_occupied = set(range(L))
 
@@ -312,6 +331,7 @@ def get_bigon_R2_pairs(word: List[Token]) -> List[Tuple[int, int]]:
             b1, sb1, b2, sb2 = pairs[b]
             if sb1 != -sb2:
                 continue
+            # a must directly nest b (nested, not interleaved)
             if not (a1 < b1 < b2 < a2):
                 continue
 

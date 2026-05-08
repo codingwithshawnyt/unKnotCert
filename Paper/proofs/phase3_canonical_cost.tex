@@ -1,0 +1,12 @@
+% Phase 4 — Canonicalization cost analysis
+% Standalone snippet for Paper/phase3_canonical_cost.tex
+% One paragraph to be placed in §3 (algorithm section).
+
+The canonicalization procedure (Algorithm~\ref{alg:canonical}) remaps
+crossing IDs to the consecutive integers $1,2,\dots,n$ in order of first
+appearance.  A single pass over the $2n$ tokens of the Gauss word processes
+each token in $O(1)$ amortized time (dictionary lookup and insertion),
+giving $O(n)$ total time per call.  This is minimal: the subroutine must at
+least read the input.  Every state generated during BRS is canonicalized
+before insertion into the visited set, contributing $O(V \cdot n)$ to the
+overall runtime, where $V$ is the number of states visited.

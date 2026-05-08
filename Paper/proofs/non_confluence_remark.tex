@@ -1,0 +1,25 @@
+%!TEX root = ../manuscript.tex
+
+\begin{remark}[Stacked-triple non-confluence]\label{rem:non-confluent}
+The rewriting system $\mathcal{B}$ consisting of bigon R1-down and
+bigon R2-down is \emph{not} confluent in general.  Consider a Gauss
+word with five crossings $i,j,k,\ell,\ell'$ arranged so that
+$i \succ j \succ k$ in the nesting forest, and $k$ contains two
+interleaved chords $\ell,\ell'$ (the cyclic order along the boundary
+is $i_{1}\,j_{1}\,k_{1}\,\ell\,\ell'\,\ell\,\ell'\,k_{2}\,j_{2}\,i_{2}$).
+At this word the only available bigon moves are
+$\mu_{1}=\text{R2-down}(i,j)$ and $\mu_{2}=\text{R2-down}(j,k)$.
+Applying $\mu_{1}$ leaves $\{\,k,\ell,\ell'\,\}$, which is stuck
+because no nested pair remains below $k$ and no adjacent pair is
+present.  Applying $\mu_{2}$ leaves $\{\,i,\ell,\ell'\,\}$, which is
+likewise stuck.  Thus two maximal greedy runs end in distinct
+non-empty stuck states; no common descendant exists, so the system is
+not confluent.
+
+Crucially, this does \emph{not} contradict
+Theorem~\ref{thm:greedy-main}, because the initial word does \emph{not}
+admit any bigon reduction to $\emptyset$; both descendants are stuck.
+Hence the hypothesis of the theorem is vacuously false here, and the
+counterexample is perfectly consistent with
+confluence-to-$\emptyset$.
+\end{remark}

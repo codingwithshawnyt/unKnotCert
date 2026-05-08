@@ -1,0 +1,95 @@
+% Phase 3.6 — Pseudocode for BRS and greedy bigon algorithm
+% Standalone snippet for Paper/phase3_pseudocode.tex
+% To be integrated into §3 and §6 during Phase 4.
+
+\subsection{Bounded Reidemeister Search}
+
+\begin{algorithm}[t]
+\caption{Bounded Reidemeister Search}
+\label{alg:brs}
+\begin{algorithmic}[1]
+\Require{Initial Gauss word $w$, ceiling $N$, strategy $s \in \{\textsc{bfs}, \textsc{cn-priority}\}$}
+\Ensure{Whether the empty word is reachable in $G_N(w)$}
+\State $Q \gets \text{empty queue}$ \Comment{or priority queue keyed on $\mathrm{cr}(\cdot)$}
+\State $\textit{visited} \gets \emptyset$
+\State $\textit{enqueue}(Q, w)$
+\While{$Q \neq \emptyset$}
+  \State $u \gets \textit{dequeue}(Q)$
+  \If{$u$ is empty}
+    \Return \True
+  \EndIf
+  \For{each valid Reidemeister move $m$ applicable to $u$}
+    \State $v \gets \textit{apply}(m, u)$
+    \If{$\mathrm{cr}(v) > N$}
+      \State \textbf{continue}
+    \EndIf
+    \If{$\textit{canonical}(v) \in \textit{visited}$}
+      \State \textbf{continue}
+    \EndIf
+    \State $\textit{visited} \gets \textit{visited} \cup \{\textit{canonical}(v)\}$
+    \State $\textit{enqueue}(Q, v)$
+  \EndFor
+\EndWhile
+\Return \False
+\end{algorithmic}
+\end{algorithm}
+
+The move enumeration (line~6) depends on the choice of move set.
+For the \emph{permissive virtual} barrier, we use the full algebraic
+move set: R1-up/R1-down (insertion or deletion of an adjacent $\pm i$
+pair), R2-up/R2-down (insertion or deletion of a directly nested
+sign-compatible pair, with no outer-arc condition), and R3 (permutation
+of three mutually interleaved labels).  R2-down is defined only on
+nested pairs; interleaved pairs are never R2-eligible.
+For the \emph{bigon} barrier, R2-down is additionally restricted by the
+bigon condition: the two outer arcs of the nested pair must be empty of
+other chord endpoints (Algorithm~\ref{alg:bigon-peel}).
+For the \emph{classical planar} barrier, the remaining algebraic moves
+are further filtered to those whose target word is planar-realizable,
+checked via the Read--Rosenstiehl parity criterion.
+
+\subsection{Greedy bigon peeling}
+
+\begin{algorithm}[t]
+\caption{Greedy bigon peeling (single pass)}
+\label{alg:bigon-peel}
+\begin{algorithmic}[1]
+\Require{Gauss word $w$}
+\Ensure{Whether $w$ reduces to $\emptyset$ via bigon R1/R2 moves}
+\State $u \gets w$
+\While{$u \neq \emptyset$}
+  \State $P \gets \text{positions where R1-down applies in } u$
+  \State $Q \gets \text{bigon-R2-eligible pairs in } u$
+  \If{$P \neq \emptyset$}
+    \State $p \gets \textit{first}(P)$
+    \State $u \gets \textit{apply}(\text{R1-down}, p, u)$
+  \ElsIf{$Q \neq \emptyset$}
+    \State $(a,b) \gets \textit{first}(Q)$
+    \State $u \gets \textit{apply}(\text{R2-down}, a, b, u)$
+  \Else
+    \Return \False \Comment{stuck}
+  \EndIf
+\EndWhile
+\Return \True
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Canonicalization}
+\label{alg:canonical}
+\begin{algorithmic}[1]
+\Require{Gauss word $w$ (list of $(id, sign)$ pairs)}
+\Ensure{Canonical tuple with IDs remapped 1,2,\dots in order of first appearance}
+\State $\textit{map} \gets \text{empty dictionary}$
+\State $\textit{next} \gets 1$
+\State $\textit{result} \gets []$
+\For{$(id, sign) \in w$}
+  \If{$id \notin \textit{map}$}
+    \State $\textit{map}[id] \gets \textit{next}$
+    \State $\textit{next} \gets \textit{next} + 1$
+  \EndIf
+  \State $\textit{result} \gets \textit{result} \oplus [(\textit{map}[id], sign)]$
+\EndFor
+\Return $\textit{result}$
+\end{algorithmic}
+\end{algorithm}

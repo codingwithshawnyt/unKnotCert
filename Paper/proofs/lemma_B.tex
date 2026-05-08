@@ -1,0 +1,152 @@
+%!TEX root = ../manuscript.tex
+
+\begin{lemma}[Reduction-Preservation under Single Moves]\label{lem:rescue}
+Let $w$ be a Gauss word and suppose $w \to^{*}_{\mathcal{B}} \emptyset$
+via some bigon-move sequence. Let $\mu$ be any bigon move available
+at $w$. Then $\mu(w)$ also admits a bigon reduction to $\emptyset$.
+\end{lemma}
+
+\begin{proof}
+By strong induction on $\mathrm{cr}(w)$. The base case $\mathrm{cr}(w)
+= 0$ is vacuous: there are no available moves. Assume the lemma
+holds for all Gauss words of crossing number strictly less than $n$,
+and let $w$ have crossing number $n \geq 1$.
+
+Let $\sigma = (\sigma_1, \sigma_2, \dots, \sigma_m)$ be a bigon
+reduction of $w$ to $\emptyset$, and let $\mu$ be a bigon move
+available at $w$ with chord set $C_\mu \subseteq \{1, \dots, n\}$.
+
+Let $i \in \{1, \dots, m\}$ be the minimal index such that $\sigma_i$
+has chord set intersecting $C_\mu$. (Such $i$ exists because $C_\mu$
+is eventually removed by $\sigma$.) For every $j < i$, the chord set
+of $\sigma_j$ is disjoint from $C_\mu$.
+
+\paragraph{Step 1 (commutation).}
+We show that for every $j \in \{0, \dots, i-1\}$, $\mu$ is available
+at $w^{(j)} := \sigma_j(\sigma_{j-1}(\cdots \sigma_1(w) \cdots))$
+(with $w^{(0)} = w$).
+
+The base case $j = 0$ is the hypothesis. For the induction step,
+assume $\mu$ is available at $w^{(j-1)}$. The move $\sigma_j$ has
+chord set disjoint from $C_\mu$ (since $j-1 < i$), and $\sigma_j$ is
+a bigon move at $w^{(j-1)}$. By Lemma~\ref{lem:del-mon}, $\mu$
+remains available at $\sigma_j(w^{(j-1)}) = w^{(j)}$ and $\mu$ and
+$\sigma_j$ commute at $w^{(j-1)}$. Hence $\mu$ is available at
+$w^{(i-1)}$.
+
+Iterated commutation also yields
+\begin{equation}\label{eq:commute}
+\mu(w^{(i-1)}) = \sigma_{i-1}(\sigma_{i-2}(\cdots \sigma_1(\mu(w))
+\cdots)),
+\end{equation}
+and each $\sigma_j$ (for $j < i$) is available at the corresponding
+state with $\mu$ applied first.
+
+\paragraph{Step 2 (shape of $\sigma_i$).}
+Since $\sigma_i$ has chord set intersecting $C_\mu = \{a\}$ (if
+$\mu = \text{R1-down}(a)$) or $C_\mu = \{a, b\}$ (if $\mu =
+\text{R2-down}(a, b)$), and $\sigma_i$ is a bigon move at
+$w^{(i-1)}$, we enumerate the possibilities using
+Lemmas~\ref{lem:E}~and~\ref{lem:del-mon}.
+
+\emph{Case A:} $\mu = \text{R1-down}(a)$.
+
+At $w$, $a$'s tokens are cyclically adjacent, so the cyclic interval
+$(a_1, a_2)$ contains no endpoints of other chords. The earlier
+moves $\sigma_1, \dots, \sigma_{i-1}$ do not touch $a$, and they can
+only delete tokens elsewhere, so at $w^{(i-1)}$ the interval
+$(a_1, a_2)$ is still empty. Hence $a$ directly nests no chord at
+$w^{(i-1)}$, and $\text{R2-down}(a, e)$ is not available. The only
+bigon move involving $a$ at $w^{(i-1)}$ is $\text{R1-down}(a) = \mu$.
+Hence $\sigma_i = \mu$.
+
+\emph{Case B:} $\mu = \text{R2-down}(a, b)$ with $a$ directly nesting
+$b$ at $w$.
+
+At $w$, the bigon condition for $(a, b)$ gives: the outer arcs of
+$(a, b)$ contain no endpoints of other chords. Earlier moves do not
+touch $a$ or $b$, and can only delete tokens, so at $w^{(i-1)}$ these
+outer arcs remain empty. The interior $(b_1, b_2)$ may however have
+been affected: at $w$, it can contain chord endpoints, and earlier
+moves can remove some.
+
+The bigon moves at $w^{(i-1)}$ involving $a$ or $b$ are exactly:
+\begin{itemize}
+\item[(B.i)] $\text{R1-down}(a)$, requiring $a$'s tokens adjacent at
+  $w^{(i-1)}$;
+\item[(B.ii)] $\text{R1-down}(b)$, requiring $b$'s tokens adjacent at
+  $w^{(i-1)}$;
+\item[(B.iii)] $\text{R2-down}(a, e)$, requiring $a$ directly nests
+  $e$ and the bigon condition for $(a, e)$;
+\item[(B.iv)] $\text{R2-down}(f, b)$, requiring $f$ directly nests
+  $b$ and bigon condition;
+\item[(B.v)] $\text{R2-down}(a, b) = \mu$.
+\end{itemize}
+
+We analyze each in turn.
+
+(B.i) is impossible: $b$'s tokens lie between $a$'s tokens at $w$
+(since $a$ nests $b$), and earlier moves do not touch $b$, so $b$'s
+tokens are still between $a$'s at $w^{(i-1)}$. Hence $a$'s tokens are
+not adjacent.
+
+(B.iii) is impossible: at $w^{(i-1)}$, the chord directly nested by
+$a$ is $b$ (since $a$ nests $b$ at $w^{(i-1)}$, by the above, and no
+other chord can lie between them: such a chord would need to have
+both tokens in the outer arcs of $(a, b)$ or in the interior
+$(b_1, b_2)$; the outer arcs are empty, and if the chord were entirely
+inside $(b_1, b_2)$ it would be nested by $b$, not between $a$ and
+$b$). By Lemma~\ref{lem:E}, $a$'s direct descendant at $w^{(i-1)}$ is
+unique, so $a$ directly nests only $b$, and $\text{R2-down}(a, e)$
+with $e \neq b$ is unavailable.
+
+(B.iv) is impossible by a symmetric argument: at $w^{(i-1)}$, $b$ is
+directly nested by $a$ and by $a$ alone (Lemma~\ref{lem:E} applied to
+$b$'s unique parent in the nesting forest of $w^{(i-1)}$).
+
+That leaves (B.ii) or (B.v). In the (B.v) sub-sub-case,
+$\sigma_i = \mu$, and we proceed as in Step~3 below.
+
+In the (B.ii) sub-sub-case, $\sigma_i = \text{R1-down}(b)$, so
+$b$'s tokens are adjacent at $w^{(i-1)}$. We handle this via
+induction: let $y := \sigma_i(w^{(i-1)}) = w^{(i-1)} \setminus \{b\}$,
+which has crossing number $n - k < n$ where $k$ is the number of
+distinct chord labels removed by $\sigma_1, \dots, \sigma_i$ (at least
+$1$, since $\sigma_i$ removes $b$).
+
+At $y$, the chord $a$'s tokens are now cyclically adjacent: before
+$\sigma_i$, they were separated only by $b$'s two tokens (the outer
+arcs of $(a, b)$ being empty, and $b$ directly nested by $a$ with no
+other chords between them); after removing $b$'s two tokens,
+$a$'s tokens become adjacent. Hence $\text{R1-down}(a)$ is available
+at $y$.
+
+The remaining sequence $(\sigma_{i+1}, \dots, \sigma_m)$ reduces $y$
+to $\emptyset$. By the induction hypothesis applied to $y$ (which has
+smaller crossing number than $w$) with move $\text{R1-down}(a)$,
+$\text{R1-down}(a)(y)$ also admits a bigon reduction to $\emptyset$.
+But $\text{R1-down}(a)(y) = y \setminus \{a\} = w^{(i-1)} \setminus
+\{a, b\} = \mu(w^{(i-1)})$.
+
+By Equation~\eqref{eq:commute} and the availability of each
+$\sigma_j$ for $j < i$ at $\mu(w), \sigma_1(\mu(w)), \dots$, applying
+$\sigma_1, \sigma_2, \dots, \sigma_{i-1}$ to $\mu(w)$ yields
+$\mu(w^{(i-1)})$. Prepending these to a bigon reduction of
+$\mu(w^{(i-1)})$ to $\emptyset$ yields a bigon reduction of $\mu(w)$
+to $\emptyset$.
+
+\paragraph{Step 3 (when $\sigma_i = \mu$).}
+If $\sigma_i = \mu$ (in Case A, or in Case B sub-sub-case (B.v)),
+apply Equation~\eqref{eq:commute}: starting from $\mu(w)$, the
+sequence $\sigma_1, \sigma_2, \dots, \sigma_{i-1}$ (each available by
+Step~1) yields $\mu(w^{(i-1)})$. Since $\sigma_i = \mu$ applied at
+$w^{(i-1)}$ equals $\mu(w^{(i-1)})$, the original sequence $\sigma$
+from $w^{(i-1)}$ onward reads $\sigma_i(w^{(i-1)}) = \mu(w^{(i-1)})
+\to^{*} \emptyset$ via $\sigma_{i+1}, \dots, \sigma_m$. Hence
+$(\sigma_1, \dots, \sigma_{i-1}, \sigma_{i+1}, \dots, \sigma_m)$
+reduces $\mu(w)$ to $\emptyset$.
+
+\paragraph{Conclusion.}
+In every case, $\mu(w)$ admits a bigon reduction to $\emptyset$. The
+induction step is complete.
+\end{proof}

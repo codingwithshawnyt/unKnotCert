@@ -1,0 +1,89 @@
+%!TEX root = ../manuscript.tex
+
+\begin{theorem}[Stuck-State Characterization, permissive version]
+\label{thm:stuck-permissive}
+Let $w$ be a non-empty Gauss word and let $N(w)$ be its nesting
+forest. Then $w$ is stuck under \emph{permissive} R1-down and R2-down
+moves if and only if both of the following hold:
+\begin{enumerate}[(i)]
+\item no adjacent opposite-sign pair exists in $w$ (no R1-down
+  applicable); and
+\item $N(w)$ has no edges, i.e.\ no chord directly nests any other
+  chord.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) We prove the contrapositive. If an R1-down move is
+applicable, then $w$ is not stuck. If $N(w)$ has an edge, then some
+chord $a$ directly nests some chord $b$, and permissive R2-down on
+$(a, b)$ is available (the permissive move requires only direct
+nesting), so $w$ is not stuck.
+
+($\Leftarrow$) Suppose both (i) and (ii) hold. By (i), no R1-down is
+applicable. By (ii), no chord directly nests any other, so no
+permissive R2-down is applicable. Hence $w$ is stuck under permissive
+moves.
+\end{proof}
+
+\begin{theorem}[Stuck-State Characterization, bigon version]
+\label{thm:stuck-bigon}
+Let $w$ be a non-empty Gauss word and let $N(w)$ be its nesting
+forest. Then $w$ is stuck under \emph{bigon} R1-down and R2-down
+moves if and only if both of the following hold:
+\begin{enumerate}[(i)]
+\item no adjacent opposite-sign pair exists in $w$ (no R1-down
+  applicable); and
+\item no edge $(a, b)$ of $N(w)$ satisfies the bigon condition
+  (both outer arcs of $(a, b)$ are empty of other chord endpoints).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) Contrapositive. If an R1-down is applicable, not
+stuck. If some directly-nested pair $(a, b) \in N(w)$ satisfies the
+bigon condition, then bigon R2-down on $(a, b)$ is applicable, so not
+stuck.
+
+($\Leftarrow$) By (i), no R1-down. By (ii), every directly-nested
+pair fails the bigon condition (at least one outer arc contains a
+chord endpoint), so no bigon R2-down is applicable. Moreover, a
+bigon R2-down pair must be directly nested (the bigon condition for
+a nested but not directly-nested pair $(a, c)$ requires the outer
+arcs to be empty, but the intermediate chord $b$ with $a \succ b \succ
+c$ has at least one endpoint in those outer arcs, contradicting the
+condition). Hence no bigon R2-down is applicable at all, and $w$ is
+stuck.
+\end{proof}
+
+\begin{corollary}[Relation to interlacement structure]
+\label{cor:interlace}
+A Gauss word $w$ is stuck under permissive R1/R2 moves if and only if
+every pair of distinct chords in $w$ is either interleaved or
+disjoint.
+\end{corollary}
+
+\begin{proof}
+Two chords $a, b$ are related in exactly one of three ways: $a$
+nests $b$, $b$ nests $a$, or $a, b$ are interleaved or disjoint (not
+nested). ``No pair is nested'' is therefore equivalent to ``every
+pair is interleaved or disjoint.''
+
+``$N(w)$ has no edges'' (condition (ii) of Theorem~\ref{thm:stuck-permissive})
+is equivalent to ``no chord directly nests another.'' If some chord
+$a$ nests some chord $b$ but not directly, by Lemma~\ref{lem:E} there
+is a chain of direct nestings $a = c_0 \succ c_1 \succ \cdots \succ
+c_k = b$ with $k \geq 2$ in $N(w)$, giving at least $k \geq 1$ edge
+of $N(w)$. Hence ``no nesting'' is equivalent to ``no direct
+nesting,'' completing the proof.
+\end{proof}
+
+\begin{remark}
+Corollary~\ref{cor:interlace} is strictly weaker than the stronger
+statement ``every interlacement component of $w$ is a fully
+interleaved clique,'' which was used in an earlier draft. The weaker
+form is correct because disjoint chords can coexist within a single
+interlacement component when interleaving is transitive but not
+complete (e.g., a chord $a$ interleaved with $b$, $b$ interleaved
+with $c$, yet $a$ and $c$ disjoint).
+\end{remark}

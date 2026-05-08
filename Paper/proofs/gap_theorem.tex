@@ -1,0 +1,64 @@
+%!TEX root = ../manuscript.tex
+
+\begin{theorem}[Classical--Virtual Gap for $D_{28}$]\label{thm:gap}
+For the hard unknot diagram $D_{28}$ of Burton et al.\
+\cite{Burton2020Hard},
+\[
+  \mathrm{Top}_{v}(D_{28}) = 28
+  \quad\text{and}\quad
+  \mathrm{Top}_{c}(D_{28}) = 31,
+\]
+where $\mathrm{Top}_{v}$ denotes the minimax barrier under the
+\emph{permissive} algebraic Reidemeister moves on Gauss words (no
+outer-arc condition on R2-down). Consequently,
+\[
+  \mathrm{Top}_{c}(D_{28}) - \mathrm{Top}_{v}(D_{28}) = 3.
+\]
+\end{theorem}
+
+\begin{proof}
+\emph{Upper bound on $\mathrm{Top}_{v}(D_{28})$.}
+Bounded Reidemeister Search~(\BRS) at ceiling $N = 28$ using the
+permissive R2-down strategy discovers an explicit monotone-reducing
+path from the $D_{28}$ Gauss word $w_{28}$ to $\emptyset$ of length
+$16$: twelve permissive R2-down moves followed by four R1-down moves,
+with crossing-number trace $[28, 26, 24, 22, 20, 18, 16, 14, 12, 10,
+8, 6, 4, 3, 2, 1, 0]$. This path is archived in
+\texttt{outputs/exact\_barrier\_results.json}. Since the maximum
+crossing number along the path is $28$,
+$\mathrm{Top}_{v}(D_{28}) \leq 28$.
+
+\emph{Lower bound on $\mathrm{Top}_{v}(D_{28})$.}
+The initial diagram $D_{28}$ has $\mathrm{cr}(D_{28}) = 28$ and lies
+on every unknotting path from $D_{28}$ to $\emptyset$. Hence the
+maximum crossing number on any such path is at least $28$, giving
+$\mathrm{Top}_{v}(D_{28}) \geq 28$. Combining with the upper bound,
+$\mathrm{Top}_{v}(D_{28}) = 28$.
+
+\emph{Classical barrier.}
+Burton et al.~\cite[Theorem in Section~3]{Burton2020Hard} proved that
+$m_{c}(D_{28}) = 3$, i.e., the minimum excess crossing number over
+classical Reidemeister sequences in $\mathbb{S}^{2}$ is exactly $3$.
+Equivalently, $\mathrm{Top}_{c}(D_{28}) = \mathrm{cr}(D_{28}) + 3 = 31$.
+Their proof uses exhaustive search over all classical Reidemeister
+sequences on $D_{28}$ in $\mathbb{S}^{2}$ restricted to diagrams with
+at most $30$ crossings, establishing that no reduction exists at
+ceiling $30$ and exhibiting one at ceiling $31$.
+
+\emph{Gap.} Combining the two barriers,
+$\mathrm{Top}_{c}(D_{28}) - \mathrm{Top}_{v}(D_{28}) = 31 - 28 = 3$.
+\end{proof}
+
+\begin{remark}
+The gap theorem holds specifically for the \emph{permissive} virtual
+barrier, in which R2-down does not require the genuine bigon
+outer-arc condition. The corresponding \emph{bigon} virtual barrier
+for $D_{28}$ satisfies $\mathrm{Top}_{v}^{\mathrm{bigon}}(D_{28}) > 28$
+(by the Phase~0 finding that $D_{28}$ is not bigon-monotone
+reducible; see Section~\ref{sec:bigon}). Hence the $3$-crossing gap
+is between the \emph{classical-planar} barrier and the
+\emph{algebraic-permissive-virtual} barrier, not between the
+classical barrier and any standard virtual-diagram barrier in the
+sense of Kauffman~\cite{Kauffman1999Virtual}. We emphasize this
+distinction to avoid overclaiming a geometric virtual separation.
+\end{remark}

@@ -1,0 +1,70 @@
+%!TEX root = ../manuscript.tex
+
+\begin{lemma}[Deletion-Monotonicity]\label{lem:del-mon}
+Let $w$ be a Gauss word, and let $\mu, \nu$ be two distinct
+bigon moves available at $w$ whose chord sets are disjoint.
+Then $\nu$ is available at $\mu(w)$, $\mu$ is available at
+$\nu(w)$, and $\mu(\nu(w))=\nu(\mu(w))$.
+In other words, disjoint bigon moves commute.
+\end{lemma}
+
+\begin{proof}
+The key observation used throughout: the validity of a bigon move at a
+Gauss word is determined by the positions and signs of the endpoints
+of its own chord set relative to all other endpoints. Specifically,
+the R1-down condition requires two designated endpoints to be
+cyclically adjacent, and the bigon R2-down condition requires two
+designated arcs to contain no other chord endpoints. In both cases,
+\emph{deleting endpoints of chords outside the move's chord set can
+only remove obstructions, never create them}. We make this precise in
+three cases.
+
+\paragraph{Case 1: R1-down $\circ$ R1-down.}
+Let $\mu$ delete the adjacent opposite-sign pair on chord $a$ and
+$\nu$ delete the analogous pair on chord $c$, with $a\neq c$.
+The two tokens of $c$ are cyclically adjacent at $w$ (for $\nu$ to be
+available). Removing the two tokens of $a$ from the cyclic word
+preserves the adjacency of $c$'s tokens: if $c$'s tokens were adjacent
+at positions $(p, p+1)$ in $w$, then after removing $a$'s two tokens
+(which occupy a disjoint pair of positions), the two tokens of $c$
+remain cyclically adjacent in the contracted word. Thus $\nu$ is
+available at $\mu(w)$. The symmetric argument holds with $\mu, \nu$
+reversed. Disjoint R1-downs trivially commute to the same word.
+
+\paragraph{Case 2: R1-down $\circ$ R2-down.}
+Let $\mu = \text{R2-down}(a, b)$ with $a$ directly nesting $b$ at $w$,
+and $\nu = \text{R1-down}(c)$ with $c \notin \{a, b\}$.
+For $\mu$'s availability at $\nu(w)$: the bigon condition for $(a, b)$
+at $w$ states that the two outer arcs of $(a, b)$ (the cyclic intervals
+$(a_1, b_1)$ and $(b_2, a_2)$) contain no endpoints of any chord other
+than $a, b$. In particular, these arcs contain no endpoint of $c$.
+Removing $c$'s two endpoints (which lie elsewhere) does not introduce
+any new endpoints into the outer arcs, so the bigon condition for
+$(a, b)$ continues to hold in $\nu(w)$. Hence $\mu$ is available at
+$\nu(w)$.
+For $\nu$'s availability at $\mu(w)$: the two tokens of $c$ are
+cyclically adjacent in $w$. They are cyclically adjacent via an
+interval that contains no endpoint of any other chord (since they are
+adjacent). Removing $a$ and $b$ therefore does not affect the
+adjacency of $c$'s tokens (the interval between them remains empty).
+Hence $\nu$ is available at $\mu(w)$.
+The two orders of application produce the same deletion of
+$\{a, b, c\}$ tokens and therefore commute.
+
+\paragraph{Case 3: R2-down $\circ$ R2-down.}
+Let $\mu = \text{R2-down}(a, b)$ and $\nu = \text{R2-down}(c, d)$ with
+$\{a, b\} \cap \{c, d\} = \emptyset$.
+The bigon condition for $(a, b)$ at $w$ states that the two outer
+arcs of $(a, b)$ are empty of \emph{all} chord endpoints other than
+$a, b$'s own; in particular, empty of endpoints of $c$ and $d$.
+Removing the four endpoints of $c$ and $d$ (which lie elsewhere) does
+not introduce new endpoints into the outer arcs of $(a, b)$, so the
+bigon condition for $(a, b)$ persists in $\nu(w)$, and $\mu$ is
+available at $\nu(w)$. The symmetric argument shows $\nu$ is available
+at $\mu(w)$. Both orderings remove the same four chords $\{a, b, c, d\}$
+and leave the other chords with unchanged relative positions; hence the
+two resulting words are identical.
+
+Every pair of disjoint bigon moves falls into one of the three cases
+above, completing the proof.
+\end{proof}

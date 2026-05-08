@@ -26,6 +26,12 @@ Search strategies:
   - 'down_only': Only explores R1_down and R2_down moves.
     NOT exhaustive — finds unknot iff a monotone-down path exists.
     Very fast, useful as a first check.
+  - 'down_r3_only': Only explores R1_down, R2_down, R3_A, R3_B moves
+    (no R1_up or R2_up). NOT exhaustive in the sense of proving
+    unreachability of arbitrary configurations, but DOES decide the
+    No-Up question: "does w reduce to the empty word without any
+    R1-up or R2-up moves?" Strictly dominates 'down_only' whenever
+    R3 moves are available.
 """
 
 import sys
@@ -44,7 +50,8 @@ from core.canonical import canonical
 def bounded_bfs(initial_word: List[Token], ceiling: int,
                 verbose: bool = True, log_interval: int = 10000,
                 time_limit: Optional[float] = None,
-                strategy: str = 'bfs'
+                strategy: str = 'bfs',
+                bigon_r2: bool = False
 ) -> Dict:
     """Run bounded BFS on G_N(D) where N = ceiling.
 
@@ -55,7 +62,7 @@ def bounded_bfs(initial_word: List[Token], ceiling: int,
         log_interval: Print status every N states.
         time_limit: Max seconds (None = unlimited). If hit, returns partial.
         strategy: 'bfs', 'cn_priority', 'cn_priority_no_r3_at_ceiling',
-                  or 'down_only'.
+                  'down_only', or 'down_r3_only'.
 
     Returns dict with:
     'reachable': bool -- whether the unknot is reachable within ceiling
@@ -76,6 +83,7 @@ def bounded_bfs(initial_word: List[Token], ceiling: int,
     if initial_cn > ceiling:
         return {
             'reachable': False, 'exhaustive': True,
+            'restricted_set_exhaustive': True,
             'states_visited': 0, 'edges_explored': 0,
             'max_cn_seen': 0, 'wall_time': 0.0,
             'cn_distribution': {}, 'path_length': None,
@@ -86,15 +94,27 @@ def bounded_bfs(initial_word: List[Token], ceiling: int,
     if initial_cn == 0:
         return {
             'reachable': True, 'exhaustive': True,
+            'restricted_set_exhaustive': True,
             'states_visited': 1, 'edges_explored': 0,
             'max_cn_seen': 0, 'wall_time': 0.0,
             'cn_distribution': {0: 1}, 'path_length': 0,
             'timed_out': False, 'strategy': strategy,
         }
 
+    # Note on exhaustiveness semantics:
+    # - 'bfs' and 'cn_priority' are exhaustive for the barrier question:
+    #   if reachable=False, we have proven M(D) >= ceiling+1.
+    # - 'down_only' and 'down_r3_only' are exhaustive for their *restricted*
+    #   question ("does w reduce to empty using only those moves?"), but they
+    #   are NOT exhaustive for the full barrier question because they skip
+    #   R1-up/R2-up which might enable a reduction below the ceiling.
+    #   We conservatively mark them as non-exhaustive so the caller does not
+    #   mis-infer a barrier lower bound from a restricted-move-set failure.
     is_exhaustive = strategy in ('bfs', 'cn_priority')
+    down_set_exhaustive = strategy in ('down_only', 'down_r3_only')
     skip_r3_at_ceiling = strategy == 'cn_priority_no_r3_at_ceiling'
     down_only = strategy == 'down_only'
+    down_r3_only = strategy == 'down_r3_only'
 
     visited: Set[tuple] = {initial_canon}
     edges_explored = 0
@@ -103,7 +123,7 @@ def bounded_bfs(initial_word: List[Token], ceiling: int,
     next_id_tracker: Dict[tuple, int] = {initial_canon: _max_id(initial_word) + 1}
     timed_out = False
 
-    if strategy in ('cn_priority', 'cn_priority_no_r3_at_ceiling', 'down_only'):
+    if strategy in ('cn_priority', 'cn_priority_no_r3_at_ceiling', 'down_only', 'down_r3_only'):
         counter = 0
         heap: List[Tuple[int, int, int, tuple]] = []
         heapq.heappush(heap, (initial_cn, counter, 0, tuple(initial_word)))
@@ -119,11 +139,13 @@ def bounded_bfs(initial_word: List[Token], ceiling: int,
             word_canon = canonical(word)
             next_id = next_id_tracker.get(word_canon, _max_id(word) + 1)
 
-            actions = get_valid_actions(word, next_id)
+            actions = get_valid_actions(word, next_id, bigon_r2=bigon_r2)
 
             for move in actions:
                 mt = move[0]
                 if down_only and mt not in ('R1_down', 'R2_down'):
+                    continue
+                if down_r3_only and mt not in ('R1_down', 'R2_down', 'R3_A', 'R3_B'):
                     continue
                 if skip_r3_at_ceiling and mt.startswith('R3') and cn_prio == ceiling:
                     continue
@@ -152,6 +174,7 @@ def bounded_bfs(initial_word: List[Token], ceiling: int,
                             depth + 1, len(visited), elapsed))
                     return {
                         'reachable': True, 'exhaustive': True,
+                        'restricted_set_exhaustive': True,
                         'states_visited': len(visited),
                         'edges_explored': edges_explored,
                         'max_cn_seen': max_cn_seen,
@@ -184,7 +207,7 @@ def bounded_bfs(initial_word: List[Token], ceiling: int,
             word_canon = canonical(word)
             next_id = next_id_tracker.get(word_canon, _max_id(word) + 1)
 
-            actions = get_valid_actions(word, next_id)
+            actions = get_valid_actions(word, next_id, bigon_r2=bigon_r2)
 
             for move in actions:
                 edges_explored += 1
@@ -211,6 +234,7 @@ def bounded_bfs(initial_word: List[Token], ceiling: int,
                             depth + 1, len(visited), elapsed))
                     return {
                         'reachable': True, 'exhaustive': True,
+                        'restricted_set_exhaustive': True,
                         'states_visited': len(visited),
                         'edges_explored': edges_explored,
                         'max_cn_seen': max_cn_seen,
@@ -237,11 +261,21 @@ def bounded_bfs(initial_word: List[Token], ceiling: int,
         if verbose:
             print("TIMEOUT after {:.1f}s: {} states, {} edges explored".format(
                 elapsed, len(visited), edges_explored))
-    elif not is_exhaustive:
+    elif not is_exhaustive and not down_set_exhaustive:
         note = 'Non-exhaustive strategy ({}): unreachability not proven'.format(strategy)
         if verbose:
             print("INCOMPLETE ({}): {} states explored, unknot not found".format(
                 strategy, len(visited)))
+    elif down_set_exhaustive:
+        # The restricted move set has been exhausted without finding the unknot.
+        # This DOES answer the restricted-move question ("is w reducible under
+        # these moves alone?") but does NOT prove a barrier lower bound for
+        # the full move set.
+        if verbose:
+            print("RESTRICTED-EXHAUSTIVE ({}): unknot NOT reachable under restricted moves".format(
+                strategy))
+            print("  states={}, edges={}, max_cn={}, {:.1f}s".format(
+                len(visited), edges_explored, max_cn_seen, elapsed))
     else:
         if verbose:
             print("EXHAUSTIVE: unknot NOT reachable at ceiling={}".format(ceiling))
@@ -252,6 +286,7 @@ def bounded_bfs(initial_word: List[Token], ceiling: int,
     result = {
         'reachable': reachable,
         'exhaustive': is_exhaustive and not timed_out,
+        'restricted_set_exhaustive': down_set_exhaustive and not timed_out,
         'states_visited': len(visited),
         'edges_explored': edges_explored,
         'max_cn_seen': max_cn_seen,

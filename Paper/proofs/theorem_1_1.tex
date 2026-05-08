@@ -1,0 +1,45 @@
+%!TEX root = ../manuscript.tex
+
+\begin{theorem}[Greedy Completeness to $\emptyset$]\label{thm:greedy-main}
+Let $w$ be a Gauss word of crossing number $n$ and let $\mathcal{B}$
+be the rewriting system whose rules are bigon R1-down and bigon
+R2-down. The greedy algorithm that repeatedly applies any available
+$\mathcal{B}$-move terminates in at most $n$ steps. Moreover, if $w$
+admits any $\mathcal{B}$-reduction to the empty word, then every
+maximal greedy run reaches the empty word. Consequently, the decision
+problem ``does $w$ admit a $\mathcal{B}$-reduction to $\emptyset$?''
+is solvable in $O(n^{4})$ time with a naive implementation, or
+$O(n^{3})$ time with incremental maintenance of the available-move
+set.
+\end{theorem}
+
+\begin{proof}
+\emph{Termination.} Each $\mathcal{B}$-move strictly decreases the
+crossing number of the word (R1-down by $1$, R2-down by $2$). Starting
+from crossing number $n$, any greedy run terminates in at most $n$
+steps.
+
+\emph{Correctness.} Suppose $w$ admits a bigon reduction to
+$\emptyset$. Let $\tau = (\nu_1, \nu_2, \dots, \nu_k)$ be any maximal
+greedy run from $w$. By Lemma~\ref{lem:rescue} applied at each step,
+the state after step $j$ (namely $\nu_j(\nu_{j-1}(\cdots \nu_1(w)
+\cdots))$) still admits a bigon reduction to $\emptyset$ for every
+$j \leq k$. In particular, the terminal state $\nu_k(\cdots)$ admits a
+bigon reduction to $\emptyset$. Since $\tau$ is maximal, no bigon move
+is applicable at this terminal state. A state that admits a bigon
+reduction to $\emptyset$ but has no applicable $\mathcal{B}$-move must
+itself be $\emptyset$: otherwise the hypothetical reduction would
+begin with some move, contradicting the lack of applicable moves.
+Hence $\tau$ reaches $\emptyset$.
+
+\emph{Complexity.} At each step, the algorithm scans for available
+$\mathcal{B}$-moves at the current word. Checking R1-down positions
+takes $O(n)$ time (scan cyclically-adjacent tokens). Checking R2-down
+pairs takes $O(n^{3})$ time in a naive implementation: there are
+$O(n^{2})$ candidate directly-nested pairs, and checking the bigon
+condition (two outer arcs empty of other endpoints) for each takes
+$O(n)$ time. With at most $n$ steps, the naive total is $O(n^{4})$.
+With an incremental data structure (e.g., a hash-set of
+bigon-eligible pairs, updated in $O(n)$ amortized time per move), the
+per-step cost drops to $O(n^{2})$, giving $O(n^{3})$ overall.
+\end{proof}

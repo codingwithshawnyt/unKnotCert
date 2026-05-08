@@ -1,0 +1,52 @@
+%!TEX root = ../manuscript.tex
+
+\begin{definition}[Nesting forest]\label{def:nesting-forest}
+Let $w$ be a Gauss word with crossing labels $1,\dots,n$.
+For two distinct crossings $a,b$, we say that $b$ strictly nests $a$
+if the two positions of $a$ lie strictly between the two positions
+of $b$ in the cyclic order.
+We further say that $b$ \textbf{directly nests} $a$, written $a\prec b$,
+if $b$ strictly nests $a$ and no third crossing $c$ satisfies
+$a\prec c\prec b$.
+The \textbf{nesting forest} $N(w)$ has vertex set $\{1,\dots,n\}$
+and a directed edge $b\to a$ whenever $a\prec b$.
+\end{definition}
+
+\begin{lemma}[Partial order]\label{lem:D}
+The strict nesting relation restricted to any subset of chords is a
+partial order (antisymmetric and transitive).  Consequently the
+nesting forest $N(w)$ is the Hasse diagram of this partial order
+restricted to cover relations.
+\end{lemma}
+
+\begin{proof}
+Antisymmetry: if $a$ is strictly nested in $b$ then the first position
+of $b$ precedes the first position of $a$, so $b$ cannot simultaneously
+be strictly nested in $a$.  Transitivity: if $a$ lies between the two
+endpoints of $b$ and $b$ lies between the two endpoints of $c$, then
+$a$ lies between the two endpoints of $c$.  Thus nesting is a strict
+partial order on the chords of $w$.
+
+The Hasse diagram of a finite partial order consists of the cover
+relations $x\lessdot y$.  By definition, $a\prec b$ is exactly the
+cover relation in the nesting order, so the directed edges of $N(w)$
+are precisely the Hasse-diagram edges.
+\end{proof}
+
+\begin{lemma}[Unique parent]\label{lem:E}
+Every chord that is strictly nested by at least one other chord has
+exactly one direct parent in $N(w)$.
+\end{lemma}
+
+\begin{proof}
+Let $a$ be a chord nested by some other chord; let $S$ be the set of
+all chords that strictly nest $a$.  $S$ is non-empty and finite, and
+the nesting relation totally orders $S$ (all chords in $S$ contain $a$
+inside them, so they are pairwise nested).  Therefore $S$ has a unique
+minimal element $b$ in the nesting order: the chord whose two
+endpoints are closest to, but still surrounding, the endpoints of $a$.
+If there were a chord $c$ with $a\prec c\prec b$, then $c$ would nest
+$a$ but be strictly inside $b$, contradicting the minimality of $b$.
+Hence $b$ directly nests $a$, i.e.  $a\prec b$, and $b$ is the unique
+parent of $a$ in $N(w)$.
+\end{proof}

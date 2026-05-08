@@ -1,0 +1,74 @@
+% Phase 3.5 — Algorithm/complexity tightening
+% Standalone snippet for Paper/phase3_algo_complexity.tex
+% To be integrated into §3 during Phase 4.
+
+\subsection{Complexity analysis}
+
+We analyze the three computational primitives used throughout the paper:
+bigon-R1/R2 greedy peeling, canonicalization, and Bounded Reidemeister Search.
+
+\paragraph{Greedy bigon peeling (Algorithm~\ref{alg:bigon-peel}).}
+Let $n = \mathrm{cr}(w)$ be the crossing number of the input Gauss word
+$w$.  Each iteration of the greedy loop scans $O(n)$ positions for
+bigon-R1 (cyclic adjacency test) and $O(n^2)$ pairs for bigon-R2, where
+each R2 pair requires an $O(n)$ check of the bigon outer-arc emptiness
+condition.  The per-iteration cost is therefore $O(n^3)$.  Each iteration
+removes at least one crossing, so the number of iterations is at most
+$n$, giving a worst-case $O(n^4)$ time per run with the naive scanner.
+An incremental data structure that maintains the set of bigon-eligible
+pairs locally (updating in $O(n^2)$ amortized time per move) improves
+this to $O(n^3)$ overall, matching the bound claimed in
+Theorem~\ref{thm:greedy-main}.
+
+The Greedy Completeness Theorem (Theorem~\ref{thm:greedy-main}) ensures
+that a \emph{single} maximal greedy pass decides bigon-monotone
+reducibility: if any reduction to $\emptyset$ exists, every maximal
+greedy run finds one; if no greedy run reaches $\emptyset$, none exists.
+Hence no backtracking is needed for the decision problem.  Backtracking
+over orderings is only relevant if one additionally wishes to enumerate
+\emph{all} bigon reductions of a given word, which is not required by
+our decision and certification algorithms (Theorems~\ref{thm:greedy-main}
+and~\ref{thm:certifying-bigon-decision}).
+
+\paragraph{Planarity testing.}
+The Read--Rosenstiehl / de~Fraysseix--Ossona de~Mendez parity criterion
+operates on the interlacement graph of the chord diagram, which is built
+in $O(n^2)$ time.  The parity check examines each edge $(i,j)$ and
+counts vertices adjacent to exactly one of $\{i,j\}$, taking $O(n^3)$
+time in the naive implementation.  This can be reduced to $O(n^2)$ by
+maintaining the adjacency matrix and computing row-wise symmetric
+differences, but $O(n^3)$ is sufficient for $n \leq 12$ (our
+experimental range).
+
+\paragraph{Canonicalization (used for state deduplication).}
+Our canonical form remaps crossing IDs in order of first appearance
+(Algorithm~\ref{alg:canonical}).  A single pass over the $2n$ tokens
+maintains a dictionary of size $n$; each token is processed in $O(1)$
+amortized time, yielding $O(n)$ total.  Note that this canonicalization
+handles only the crossing-label permutation symmetry; cyclic rotations
+and reversals of the Gauss word produce distinct canonical forms.  This
+inflates the BRS state count by up to a factor of $4n$ compared to a
+fully-symmetric canonicalization, but does not affect correctness of
+the reachability decision.  Canonicalization is called for every state
+generated during BRS, contributing $O(V \cdot n)$ to the overall
+runtime, where $V$ is the number of states visited.
+
+\paragraph{Bounded Reidemeister Search (BRS).}
+The BFS explores the subgraph $G_N(D)$ of the Reidemeister graph whose
+vertices have crossing number at most $N = \mathrm{cr}(D) + k$.  At each
+state, valid actions are enumerated by scanning the Gauss word for move
+patterns.  In the worst case, the number of actions per state is
+$O(n + n^2 + n^3) = O(n^3)$ (R1 positions, R2 pairs, R3 triples), but
+in practice the move set is sparse.  We do not have a general polynomial
+upper bound on $|G_N(D)|$ for $N > \mathrm{cr}(D)$, but Phase~0 and
+Phase~3 experiments at $n \leq 12$ and $k \leq 3$ terminate within
+the budgets documented in $\S\ref{sec:budget}$.
+
+\paragraph{Parameterized complexity: open.}
+Whether deciding $\mathrm{Top}_v(D) \leq N$ is fixed-parameter tractable
+in the overshoot $k = N - \mathrm{cr}(D)$ is open.  A naive upper bound
+on $|G_N(D)|$ of $n^{O(k)}$ is easy to derive from the number of ways
+to insert up to $k$ crossings, but we do not know whether the
+Reidemeister graph admits a width measure bounded by a function of $k$
+alone.  We leave this as a question for future work (see
+$\S\ref{sec:open}$).

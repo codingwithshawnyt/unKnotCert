@@ -1,0 +1,108 @@
+%!TEX root = ../manuscript.tex
+
+\begin{theorem}[Certifying bigon-barrier decision]\label{thm:certifying-bigon-decision}
+Let $w$ be a signed Gauss word with $n$ chords, and let $\mathcal{B}$
+denote the rewriting system of bigon R1-down and bigon R2-down moves.
+There is a deterministic algorithm (any maximal greedy $\mathcal{B}$-run)
+that, in at most $n$ steps, outputs exactly one of the following two
+certificates:
+\begin{enumerate}
+\item A deletion sequence
+  $w = w_0 \xrightarrow{\mu_0} w_1 \xrightarrow{\mu_1} \cdots
+  \xrightarrow{\mu_{t-1}} w_t = \emptyset$ of bigon moves,
+  certifying that $w$ is bigon-reducible.
+\item A nonempty word $z = w_t$ that admits no bigon move
+  (equivalently, every directly-nested pair in the nesting forest
+  $N(z)$ fails the bigon outer-arc condition, and no adjacent
+  opposite-sign pair is present; see Theorem~\ref{thm:stuck-bigon}),
+  together with the deletion sequence from $w$ to $z$, certifying
+  that $w$ is \emph{not} bigon-reducible.
+\end{enumerate}
+Both certificates are verifiable in polynomial time. The algorithm
+runs in $O(n^4)$ time with a naive move scanner, or $O(n^3)$ time
+with incremental maintenance of the available-move set.
+\end{theorem}
+
+\begin{proof}
+Starting from $w_0 = w$, the algorithm iterates: at each state $w_t$,
+if any bigon move is available, it chooses one ($\mu_t$) and sets
+$w_{t+1} = \mu_t(w_t)$; otherwise, it halts and outputs $w_t$.
+
+\emph{Termination.} Each bigon move decreases the chord count by at
+least one, so the procedure halts after at most $n$ steps.
+
+\emph{Yes-certificate.} If the procedure halts with $w_t = \emptyset$,
+the recorded sequence of moves is, by construction, a valid
+$\mathcal{B}$-reduction of $w$ to the empty word. This certifies
+bigon-reducibility.
+
+\emph{No-certificate.} Suppose the procedure halts with
+$z = w_t \neq \emptyset$. By construction, $z$ is stuck (no bigon
+move applies at $z$). We show $w$ is not bigon-reducible.
+
+Assume for contradiction that $w$ admits a bigon reduction to
+$\emptyset$. By induction on $t$, each intermediate state $w_i$
+admits a bigon reduction to $\emptyset$: the base case $i = 0$ is the
+hypothesis, and for the induction step, Lemma~\ref{lem:rescue}
+(Reduction-Preservation) applied at $w_i$ with move $\mu_i$
+shows that $w_{i+1} = \mu_i(w_i)$ also admits a bigon reduction to
+$\emptyset$.
+
+Hence $z = w_t$ admits a bigon reduction to $\emptyset$. Since $z$ is
+nonempty, any such reduction is nonempty and therefore begins with a
+bigon move applied at $z$. But $z$ is stuck, so no bigon move is
+available at $z$, yielding a contradiction.
+
+Therefore $w$ is not bigon-reducible, and $(z, (\mu_0, \mu_1, \ldots,
+\mu_{t-1}))$ is a valid no-certificate.
+
+\emph{Verification.} A yes-certificate is verified by replaying the
+listed moves from $w$ and checking at each step (a) that the listed
+move is indeed a valid bigon move at the current word, and (b) that
+the final state is $\emptyset$. Each step's validity check runs in
+$O(n)$ time for R1-down (adjacency test) or $O(n^2)$ time for
+R2-down (direct nesting plus bigon outer-arc emptiness), giving
+$O(n^3)$ total verification time. A no-certificate is verified
+identically, with the additional step of scanning the residual word
+$z$ to confirm that no bigon move applies, at cost $O(n^3)$.
+
+\emph{Running time.} There are at most $n$ deletion steps. A naive
+scanner recomputes all candidate moves from scratch at each step,
+costing $O(n^3)$ per step for R2-down enumeration (as in
+Theorem~\ref{thm:greedy-main}) and giving $O(n^4)$ total. An
+incremental data structure maintaining the set of currently-bigon-
+eligible pairs and opposite-sign adjacencies can be updated in
+$O(n^2)$ amortized time per move, yielding $O(n^3)$ overall.
+\end{proof}
+
+\begin{remark}[Why the residual core is a certificate]\label{rem:why-residual-is-cert}
+A maximal greedy run in an arbitrary rewrite system typically proves
+only local optimality, not global impossibility. What makes
+Theorem~\ref{thm:certifying-bigon-decision} stronger is
+Lemma~\ref{lem:rescue}: if $w$ were bigon-reducible, every available
+first move would preserve bigon-reducibility, and so no greedy run
+could terminate at a nonempty stuck word. The stuck residual $z$ is
+therefore a global obstruction, not a local one. This is the essential
+algorithmic content of Lemma~\ref{lem:rescue} and is what elevates
+the stuck-state characterization
+(Theorem~\ref{thm:stuck-bigon}) from a structural observation into
+part of a complete decision procedure.
+\end{remark}
+
+\begin{remark}[Scope: bigon-monotone reducibility, not virtual unknotting]
+\label{rem:scope-bigon-vs-unknotting}
+We emphasize that Theorem~\ref{thm:certifying-bigon-decision} decides
+the specific combinatorial problem of \emph{bigon-monotone
+reducibility of signed Gauss words} — whether a word simplifies to
+the empty word using only bigon R1-down and bigon R2-down moves. This
+is strictly weaker than the virtual unknotting problem: most classical
+unknot diagrams are \emph{not} bigon-reducible (for example,
+Goeritz and Culprit, as established in the computational study of
+Section~\ref{sec:bigon}), yet they are, tautologically, unknots.
+Bigon-monotone reducibility is the most restrictive natural
+Reidemeister-downward rewrite system on signed Gauss words, and the
+exact decidability of this restricted problem is the scope of
+Theorem~\ref{thm:certifying-bigon-decision}. Generalizing to the
+permissive R2 setting, or to the full Reidemeister rewrite system
+with up-moves, raises problems whose complexity status we leave open.
+\end{remark}
