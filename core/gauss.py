@@ -18,7 +18,7 @@ Reidemeister moves in a Gauss word:
 Move descriptors identify crossings by ID, not position, for robustness.
 """
 
-from typing import List, Tuple, Dict, Set
+from typing import List, Tuple, Dict, Set, Optional
 
 Token = Tuple[int, int]
 MoveDescriptor = Tuple
@@ -217,6 +217,152 @@ def _is_linked(pairs, a, b):
     a1, _, a2, _ = pairs[a]
     b1, _, b2, _ = pairs[b]
     return (a1 < b1 < a2 < b2) or (b1 < a1 < b2 < a2)
+
+
+def _cyclic_interval_empty(word_len: int, occupied: Set[int], start: int, end: int) -> bool:
+    """Check if the open cyclic interval (start, end) contains no occupied positions.
+
+    Positions are 0-indexed on a circle of length word_len.
+    The interval is the set of positions strictly between start and end
+    when traversing clockwise from start to end.
+    """
+    if start == end:
+        return True
+    pos = (start + 1) % word_len
+    while pos != end:
+        if pos in occupied:
+            return False
+        pos = (pos + 1) % word_len
+    return True
+
+
+def is_bigon_R2_down(word: List[Token], outer_cid: int, inner_cid: int) -> bool:
+    """Check whether (outer, inner) is a bigon R2-down pair.
+
+    Requires:
+    1. outer nests inner in the cyclic order: i1 < j1 < j2 < i2
+    2. The two outer arcs (i1, j1) and (j2, i2) contain no endpoints
+       of any other chord (empty outer arcs = bigon condition).
+    3. The sign condition: outer has opposite signs at its two endpoints,
+       inner has opposite signs at its two endpoints.
+    """
+    if not word:
+        return False
+    L = len(word)
+    pairs = _pair_positions(word)
+
+    if outer_cid not in pairs or inner_cid not in pairs:
+        return False
+
+    i1, si1, i2, si2 = pairs[outer_cid]
+    j1, sj1, j2, sj2 = pairs[inner_cid]
+
+    if si1 != -si2:
+        return False
+    if sj1 != -sj2:
+        return False
+
+    if not (i1 < j1 < j2 < i2):
+        return False
+
+    occupied = set(range(L))
+    occupied.discard(i1)
+    occupied.discard(i2)
+    occupied.discard(j1)
+    occupied.discard(j2)
+
+    if not _cyclic_interval_empty(L, occupied, i1, j1):
+        return False
+    if not _cyclic_interval_empty(L, occupied, j2, i2):
+        return False
+
+    return True
+
+
+def get_bigon_R2_pairs(word: List[Token]) -> List[Tuple[int, int]]:
+    """Return all (outer_cid, inner_cid) pairs eligible for bigon R2-down.
+
+    A pair is bigon-R2-eligible if:
+    - outer nests inner (i1 < j1 < j2 < i2)
+    - Both chords have opposite signs at their two endpoints
+    - The outer arcs (i1,j1) and (j2,i2) are empty of other endpoints
+    """
+    if not word:
+        return []
+    pairs = _pair_positions(word)
+    cids = sorted(pairs.keys())
+    L = len(word)
+
+    occupied_by_chord = {}
+    for i, (cid, _) in enumerate(word):
+        if cid not in occupied_by_chord:
+            occupied_by_chord[cid] = set()
+        occupied_by_chord[cid].add(i)
+
+    all_occupied = set(range(L))
+
+    result = []
+    for a in cids:
+        a1, sa1, a2, sa2 = pairs[a]
+        if sa1 != -sa2:
+            continue
+        for b in cids:
+            if b == a:
+                continue
+            b1, sb1, b2, sb2 = pairs[b]
+            if sb1 != -sb2:
+                continue
+            if not (a1 < b1 < b2 < a2):
+                continue
+
+            outer_occupied = set(all_occupied)
+            outer_occupied.discard(a1)
+            outer_occupied.discard(a2)
+            outer_occupied.discard(b1)
+            outer_occupied.discard(b2)
+
+            if not _cyclic_interval_empty(L, outer_occupied, a1, b1):
+                continue
+            if not _cyclic_interval_empty(L, outer_occupied, b2, a2):
+                continue
+
+            result.append((a, b))
+
+    return result
+
+
+def get_R1_down_positions(word: List[Token]) -> List[int]:
+    """Return positions where R1-down is applicable.
+
+    Position i means word[i] and word[(i+1) % L] are the adjacent pair
+    with the same crossing ID and opposite signs.
+    """
+    if not word:
+        return []
+    L = len(word)
+    result = []
+    W2 = word + word
+    for i in range(L):
+        if W2[i][0] == W2[i + 1][0] and W2[i][1] == -W2[i + 1][1]:
+            result.append(i % L)
+    return result
+
+
+def get_bigon_actions(word: List[Token]) -> List[MoveDescriptor]:
+    """Return all valid bigon R1-down and bigon R2-down moves.
+
+    Bigon R1-down: adjacent pair with same crossing ID and opposite signs.
+    Bigon R2-down: directly nested pair with empty outer arcs and opposite signs.
+    """
+    actions: List[MoveDescriptor] = []
+
+    for pos in get_R1_down_positions(word):
+        actions.append(('R1_down', pos))
+
+    for outer, inner in get_bigon_R2_pairs(word):
+        actions.append(('R2_down', outer, inner))
+
+    return actions
 
 
 def apply_action(word: List[Token], move: MoveDescriptor, next_id: int
